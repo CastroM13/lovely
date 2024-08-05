@@ -1,0 +1,15 @@
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    gap: 20px;
+    .card {
+        border-radius: 5px;
+        overflow: hidden;
+        img {
+            height: 100%;
+        }
+    }
+}

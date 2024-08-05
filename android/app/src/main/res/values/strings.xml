@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Lovely</string>
+    <string name="title_activity_main">Lovely</string>
+    <string name="package_name">Lovely</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+</resources>
