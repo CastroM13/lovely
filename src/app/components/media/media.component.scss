@@ -1,0 +1,74 @@
+.banner {
+    width: 100vw;
+    aspect-ratio: 16 / 9;
+    background-size: cover;
+    background-image: var(--bg);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: relative;
+    .gradient {
+        width: 100%;
+        height: 101%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: linear-gradient(rgba(0, 0, 0, 0), rgb(0, 0, 0));
+    }
+    img {
+        z-index: 2;
+        width: 50%;
+    }
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+time {
+    color: gray;
+}
+
+.genres {
+    display: flex;
+    gap: 8px;
+}
+
+ion-item {
+    --background: transparent;
+}
+
+ion-segment {
+    --background: transparent;
+}
+
+.rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    --size: 4rem;
+    ion-range {
+        position: absolute;
+        height: var(--size);
+        width: calc(var(--size) * 5);
+        margin: 0 1rem;
+        transform: translateX(-8px);
+        opacity: 0;
+    }
+    .inner-rating {
+        display: flex;
+        font-size: var(--size);
+        gap: 6px;
+        justify-content: center;
+        position: relative;
+        .fg-rating {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+        .bg-rating {
+            position: absolute;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+}

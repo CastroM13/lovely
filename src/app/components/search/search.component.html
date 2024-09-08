@@ -1,0 +1,22 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-item lines="none">
+      <ion-icon style="opacity: .5;" slot="start" name="search" aria-hidden="true"></ion-icon>
+      <ion-input [(ngModel)]="filter.name" [clearInput]="true" clearInputIcon="close" class="text-center" fill="solid" shape="round"
+        placeholder="Buscar"></ion-input>
+    </ion-item>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="loadFeed($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  <div class="media-grid">
+    <div class="media" *ngFor="let item of feedRendered" (click)="openFeedItem(item)">
+      <img loading="lazy" [src]="item.poster" alt="">
+    </div>
+  </div>
+  <ion-infinite-scroll (ionInfinite)="onLoadMore($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

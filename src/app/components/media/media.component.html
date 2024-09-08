@@ -1,0 +1,56 @@
+<ion-content *ngIf="metadata && metadata.meta">
+  <div class="banner" [style.--bg]="'url(' + metadata.meta.background + ')'">
+    <div class="gradient"></div>
+    <img [src]="metadata.meta.logo" alt="">
+  </div>
+  <div class="p">
+    <time>{{metadata.meta.director || metadata.meta.country }}</time>
+    <h1>{{metadata.meta.name}}</h1>
+    <br>
+    <div class="genres">
+      <ion-badge *ngFor="let genre of metadata?.meta?.genres">{{genre}}</ion-badge>
+    </div>
+    <p>{{metadata.meta.description}}</p>
+    <ion-segment [(ngModel)]="tab">
+      <ion-segment-button value="progress">
+        <ion-item lines="none">
+          <ion-icon slot="start" name="play-circle"></ion-icon>
+          Progresso
+        </ion-item>
+      </ion-segment-button>
+      <ion-segment-button value="rating">
+        <ion-item lines="none">
+          <ion-icon slot="start" name="star-sharp"></ion-icon>
+          Crítica
+        </ion-item>
+      </ion-segment-button>
+    </ion-segment>
+    <br>
+    <ng-container [ngSwitch]="tab">
+      <div *ngSwitchCase="'progress'">
+        <div *ngIf="!metadata.meta.videos">
+          <h3 class="text-center">
+            {{millisecondsToTimeString(curr)}}/{{convertMinutesToTimeString(metadata.meta.runtime)}}
+          </h3>
+          <ion-range [(ngModel)]="curr" [max]="convertMinutesToMilliseconds(metadata.meta.runtime)">
+            <ion-icon slot="start" name="play-sharp"></ion-icon>
+          </ion-range>
+        </div>
+      </div>
+      <div *ngSwitchCase="'rating'">
+        <div class="rating">
+          <ion-range [(ngModel)]="rating" [ticks]="true" [snaps]="true" [min]="0" [max]="10"></ion-range>
+          <div class="inner-rating">
+            <div class="fg-rating">
+              <ion-icon *ngFor="let i of [].constructor(star)" name="star"></ion-icon>
+              <ion-icon *ngFor="let i of [].constructor(half)" name="star-half"></ion-icon>
+            </div>
+            <div class="bg-rating">
+              <ion-icon *ngFor="let i of [].constructor(5)" name="star-outline"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</ion-content>

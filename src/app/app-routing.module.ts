@@ -1,20 +1,24 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { tokenGuard } from './token.guard';
+import { hasTokenGuard } from './has-token.guard';
 
 const routes: Routes = [
   {
-    path: '',
-    component: DashboardComponent
+    path: 'login',
+    loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule),
+    canActivate: [hasTokenGuard]
   },
   {
     path: 'filminho',
-    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
+    loadChildren: () => import('./filminho/filminho.module').then(m => m.FilminhoPageModule),
+    canActivate: [tokenGuard]
   },
   {
-    path: 'namorico',
-    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
-  }
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  },
 ];
 @NgModule({
   imports: [

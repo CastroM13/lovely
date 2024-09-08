@@ -1,0 +1,20 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-item lines="none">
+      <ion-icon style="opacity: .5;" slot="start" name="search" aria-hidden="true"></ion-icon>
+      <ion-input [(ngModel)]="filter.title" [clearInput]="true" clearInputIcon="close" class="text-center" fill="solid" shape="round"
+        placeholder="Buscar"></ion-input>
+        <ion-icon style="opacity: .5;" slot="end" name="filter" aria-hidden="true"></ion-icon>
+    </ion-item>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="loadMediaCollection($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  <div class="media-grid">
+    <div class="media" *ngFor="let media of mediaCollection | search:'Title':filter.title" (click)="openMedia(media)">
+      <img loading="lazy" [src]="media.Poster" alt="">
+    </div>
+  </div>
+</ion-content>

@@ -35,3 +35,34 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+
+.text-center {
+    text-align: center;
+}
+
+.media-grid {
+    display: grid;
+    gap: .5rem;
+    margin: .5rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    align-items: center;
+    justify-content: center;
+    .media {
+        aspect-ratio: 2/3;
+        width: auto;
+        border-radius: 5px;
+        overflow: hidden;
+        img {
+            width: 100%;
+        }
+    }
+}
+
+ion-header {
+    --background: rgba(255, 255, 255, 0.5); /* Example to set a semi-transparent white background */
+}
+
+.p {
+    padding: 16px;
+}
