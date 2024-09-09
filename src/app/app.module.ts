@@ -8,6 +8,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { StateService } from './services/state.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,6 +23,7 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
     IonicStorageModule.forRoot()
   ],
   providers: [
+    StateService,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideHttpClient(withInterceptorsFromDi())
   ],
