@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
-import { lastValueFrom } from 'rxjs';
+import { forkJoin, lastValueFrom } from 'rxjs';
 import { FeedItem } from 'src/app/interfaces/feed';
+import { Meta, MovieSearchMetaData } from 'src/app/interfaces/metadata';
 import { FilminhoService } from 'src/app/services/filminho.service';
 
 @Component({
@@ -19,6 +20,7 @@ export class SearchComponent  implements OnInit {
   ) { }
 
   feed: FeedItem[] = [];
+  searchData: Meta[] | undefined;
   feedRendered: FeedItem[] = [];
   filter = {
     name: null
@@ -26,6 +28,12 @@ export class SearchComponent  implements OnInit {
 
   async ngOnInit() {
     this.loadFeed();
+  }
+
+  async search(ev: any) {
+    const value = ev.detail.value;
+    if (value === '' || value === null || value === undefined) delete this.searchData;
+    this.searchData = ((await lastValueFrom(forkJoin([this.filminhoService.search('series',value), this.filminhoService.search('movie', value)]))).map(x => x.metas) as any).flat();
   }
 
   loadFeed(event?: {target:{complete:()=>void}}) {
@@ -37,7 +45,7 @@ export class SearchComponent  implements OnInit {
   }
 
   openFeedItem(feedItem: FeedItem) {
-    this.router.navigate([feedItem.id], { relativeTo: this.activatedRoute})
+    this.router.navigate([feedItem.id], { relativeTo: this.activatedRoute, state: { fallback: feedItem } })
   }
 
   onLoadMore(ev?: InfiniteScrollCustomEvent) {

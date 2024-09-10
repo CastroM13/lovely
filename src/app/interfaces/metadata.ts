@@ -37,9 +37,27 @@ interface Video {
     imdb_id: string;
 }
 
+export interface QueryMedia {
+    id: string;
+    imdb_id: string;
+    type: string;
+    name: string;
+    releaseInfo: string;
+    poster: string;
+    links: [],
+    behaviorHints: {
+        defaultVideoId: number,
+        hasScheduledVideos: boolean
+    }
+}
+
 
 export interface MovieMetaData {
     meta: Meta;
+}
+
+export interface MovieSearchMetaData {
+    metas: Meta[];
 }
 
 export interface Meta {

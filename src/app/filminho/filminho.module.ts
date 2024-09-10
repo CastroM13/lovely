@@ -10,11 +10,13 @@ import { CollectionComponent } from '../components/collection/collection.compone
 import { SearchComponent } from '../components/search/search.component';
 import { MediaComponent } from '../components/media/media.component';
 import { SharedModule } from '../modules/shared.module';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   imports: [
     IonicModule,
     CommonModule,
+    RouterModule,
     FormsModule,
     SharedModule,
     FilminhoPageRoutingModule

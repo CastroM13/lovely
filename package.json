@@ -10,7 +10,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "resources": "npx capacitor-resources -p android && node resources.js",
-    "generate": "ionic cap sync && ionic build && ionic cap copy && cd android && ./gradlew assembleDebug",
+    "generate": "ionic cap sync && ionic build --configuration production && ionic cap copy && cd android && ./gradlew assembleDebug",
     "lint": "ng lint"
   },
   "private": true,

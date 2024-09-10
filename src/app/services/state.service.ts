@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Media } from '../interfaces/media';
-import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs';
-import { Plugins } from '@capacitor/core';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { StorageService } from './storage.service';
 
 export interface GlobalState {

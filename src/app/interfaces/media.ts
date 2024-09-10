@@ -1,22 +1,29 @@
 interface Remarks {
-    jujuba: number;
-    tito: number;
+    [x: string]: number;
 }
 
 interface Reviews {
-    jujuba: string;
-    tito: string;
+    [x: string]: string;
 }
 
+export const MediaStatus = {
+    PENDING: "To Watch",
+    WATCHING: "In Progress",
+    WATCHED: "Watched"
+} as const;
+
+export type MediaStatusType = (typeof MediaStatus)[keyof typeof MediaStatus];
+
 export interface Media {
-    _id: string;
-    Title: string;
-    Year: string;
-    Type: string;
-    Poster: string;
-    imdbID: string;
-    Remarks: Remarks;
-    Status: string;
+    _id: string | null;
+    Title?: string | null;
+    Timestamp?: string | null;
+    Year?: string | null;
+    Type?: string | null;
+    Poster?: string | null;
+    imdbID?: string | null;
+    Remarks?: Remarks | null;
+    Status?: MediaStatusType | null;
     __v: number;
-    Reviews: Reviews;
+    Reviews?: Reviews | null;
 }

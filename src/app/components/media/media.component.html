@@ -1,5 +1,13 @@
 <ion-content *ngIf="metadata && metadata.meta">
-  <div class="banner" [style.--bg]="'url(' + metadata.meta.background + ')'">
+  <ion-toolbar slot="start">
+    <ion-buttons>
+      <ion-button [routerLink]="['../']" routerDirection="back">
+        <ion-icon slot="start" name="chevron-back-sharp"></ion-icon>
+        Voltar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <div class="banner" [style.--bg]="'url(' + (metadata.meta.background || media.Poster) + ')'">
     <div class="gradient"></div>
     <img [src]="metadata.meta.logo" alt="">
   </div>
@@ -8,38 +16,88 @@
     <h1>{{metadata.meta.name}}</h1>
     <br>
     <div class="genres">
-      <ion-badge *ngFor="let genre of metadata?.meta?.genres">{{genre}}</ion-badge>
+      <span class="label"><img height="18px" src="assets/IMDb_Logo_Alt_Rectangle_White.png" alt="">
+        {{metadata.meta.imdbRating}}</span>
+      <ng-container *ngIf="metadata.meta.runtime">
+        <hr v>
+        <span class="label">{{metadata.meta.runtime}}</span>
+      </ng-container>
+      <ng-container *ngIf="metadata.meta.year || metadata.meta.releaseInfo">
+        <hr v>
+        <span class="label">{{metadata.meta.year || metadata.meta.releaseInfo}}</span>
+      </ng-container>
+      <ng-container *ngIf="metadata.meta.genres && metadata.meta.genres.length > 0">
+        <hr v>
+        <span>
+          <div>
+            <a class="link" (click)="routeTo(genre)"
+              *ngFor="let genre of metadata.meta.genres.slice(0,2); let i = index">
+              {{genre}}{{i + 1 < metadata.meta.genres.slice(0, 2).length ? ',' : '' }} </a>
+          </div>
+        </span>
+      </ng-container>
     </div>
     <p>{{metadata.meta.description}}</p>
-    <ion-segment [(ngModel)]="tab">
-      <ion-segment-button value="progress">
+    <ion-segment [(ngModel)]="media.Status" (ngModelChange)="dirty = true">
+      <ion-segment-button value="To Watch">
         <ion-item lines="none">
-          <ion-icon slot="start" name="play-circle"></ion-icon>
-          Progresso
+          Vamos assistir
         </ion-item>
       </ion-segment-button>
-      <ion-segment-button value="rating">
+      <ion-segment-button value="In Progress">
         <ion-item lines="none">
-          <ion-icon slot="start" name="star-sharp"></ion-icon>
-          Crítica
+          Assistindo
+        </ion-item>
+      </ion-segment-button>
+      <ion-segment-button value="Watched">
+        <ion-item lines="none">
+          Assistimos!
         </ion-item>
       </ion-segment-button>
     </ion-segment>
     <br>
-    <ng-container [ngSwitch]="tab">
-      <div *ngSwitchCase="'progress'">
+    <ng-container [ngSwitch]="media.Status">
+      <div *ngSwitchCase="'In Progress'">
         <div *ngIf="!metadata.meta.videos">
           <h3 class="text-center">
-            {{millisecondsToTimeString(curr)}}/{{convertMinutesToTimeString(metadata.meta.runtime)}}
+            {{millisecondsToTimeString(media.Timestamp ?? '0')}}/{{convertMinutesToTimeString(metadata.meta.runtime)}}
           </h3>
-          <ion-range [(ngModel)]="curr" [max]="convertMinutesToMilliseconds(metadata.meta.runtime)">
+          <ion-range [(ngModel)]="media.Timestamp" (ngModelChange)="dirty = true"
+            [max]="convertMinutesToMilliseconds(metadata.meta.runtime)">
             <ion-icon slot="start" name="play-sharp"></ion-icon>
           </ion-range>
         </div>
       </div>
-      <div *ngSwitchCase="'rating'">
+      <div *ngSwitchCase="'Watched'">
+        <div class="review-chat">
+          <ng-container *ngFor="let review of media.Reviews | keyvalue">
+            <div class="review" *ngIf="review.value">
+              <ion-avatar>
+                <img [src]="'assets/'+review.key+'.jpg'" />
+              </ion-avatar>
+              <ion-card class="ion-no-margin ion-padding comment" (click)="review.key === token ? editRemark(modal) : null">
+                {{review.value}}
+                <span class="stars">{{media.Remarks![review.key]}} <ion-icon name="star"></ion-icon></span>
+              </ion-card>
+            </div>
+          </ng-container>
+          <div class="review" *ngIf="!media.Reviews || !media.Reviews[token]">
+            <ion-avatar>
+              <img [src]="'assets/'+token+'.jpg'" />
+            </ion-avatar>
+            <ion-card class="ion-no-margin ion-padding comment" (click)="editRemark(modal)">
+              Clique para adicionar sua review
+            </ion-card>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+  <ion-modal #modal draggable="false" [initialBreakpoint]="0.3" [breakpoints]="[0.3, 0.5, 0.75]">
+    <ng-template>
+      <ion-content>
         <div class="rating">
-          <ion-range [(ngModel)]="rating" [ticks]="true" [snaps]="true" [min]="0" [max]="10"></ion-range>
+          <ion-range [(ngModel)]="newRemark" [ticks]="true" [snaps]="true" [min]="0" [max]="10"></ion-range>
           <div class="inner-rating">
             <div class="fg-rating">
               <ion-icon *ngFor="let i of [].constructor(star)" name="star"></ion-icon>
@@ -50,7 +108,19 @@
             </div>
           </div>
         </div>
-      </div>
-    </ng-container>
-  </div>
+        <ion-card class="ion-padding">
+          <ion-textarea class="ion-no-padding" [(ngModel)]="newReview" [autoGrow]="true" inputmode="text"
+            placeholder="Digite o seu review!">
+          </ion-textarea>
+        </ion-card>
+        <ion-button class="ion-padding" expand="block" (click)="publishReview();upsert()">
+          <ion-icon slot="start" name="send-sharp" aria-hidden="true"></ion-icon>
+          Publicar review
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>
+<ion-footer *ngIf="dirty">
+  <ion-button expand="full" (click)="upsert()">Salvar</ion-button>
+</ion-footer>

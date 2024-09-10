@@ -1,0 +1,12 @@
+{
+    "/api": {
+      "target": "https://sa-east-1.aws.data.mongodb-api.com/app/application-0-jmmnknk/endpoint",
+      "secure": false,
+      "changeOrigin": true,
+      "pathRewrite": {
+         "^/api": ""
+      },
+      "logLevel": "debug"
+    }
+  }
+  
