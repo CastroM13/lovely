@@ -67,6 +67,19 @@
             <ion-icon slot="start" name="play-sharp"></ion-icon>
           </ion-range>
         </div>
+        <ion-accordion-group *ngIf="metadata.meta.videos">
+          <ion-accordion *ngFor="let season of generateSeasons(metadata.meta.videos) | keyvalue" [value]="season.key">
+            <ion-item slot="header" color="light">
+              <ion-label>Temporada {{season.key}}</ion-label>
+            </ion-item>
+            <ion-item-group slot="content">
+              <ion-item *ngFor="let episode of season.value">
+                {{episode.number}}. {{episode.name}}
+                <ion-checkbox (ionChange)="markAsWatched(episode)" [checked]="isActive(episode)" slot="end"></ion-checkbox>
+              </ion-item>
+            </ion-item-group>
+          </ion-accordion>
+        </ion-accordion-group>
       </div>
       <div *ngSwitchCase="'Watched'">
         <div class="review-chat">

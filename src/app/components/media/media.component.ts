@@ -4,7 +4,7 @@ import { IonModal, LoadingController } from '@ionic/angular';
 import { lastValueFrom } from 'rxjs';
 import { FeedItem } from 'src/app/interfaces/feed';
 import { Media } from 'src/app/interfaces/media';
-import { MovieMetaData, QueryMedia } from 'src/app/interfaces/metadata';
+import { MovieMetaData, QueryMedia, Video } from 'src/app/interfaces/metadata';
 import { FilminhoService } from 'src/app/services/filminho.service';
 import { StateService } from 'src/app/services/state.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -90,7 +90,7 @@ export class MediaComponent implements OnInit {
   }
 
   async updateMediaCollection() {
-    this.stateService.state = {collections: await lastValueFrom(this.filminhoService.getCollection())};
+    this.stateService.state = { collections: await lastValueFrom(this.filminhoService.getCollection()) };
   }
 
   async fetchMedia() {
@@ -139,6 +139,34 @@ export class MediaComponent implements OnInit {
     }
     loading.dismiss();
     this.dirty = false;
+  }
+
+  markAsWatched(episode: Video) {
+    const seCode = `S${String(episode.season).padStart(2, '0')}E${String(episode.number).padStart(2, '0')}`;
+    if (this.media.WatchedEpisodes) {
+      return this.media.WatchedEpisodes.push(seCode);
+    }
+    return this.media.WatchedEpisodes = [seCode]
+  }
+
+  isActive(episode: Video) {
+    this.media.WatchedEpisodes = ['S01E01'];
+    const seCode = `S${String(episode.season).padStart(2, '0')}E${String(episode.number).padStart(2, '0')}`;
+    if (this.media.WatchedEpisodes) {
+      return this.media.WatchedEpisodes.includes(seCode);
+    }
+    return false;
+  }
+
+  generateSeasons(videos: Video[]) {
+    const seasons: {[key: number]: Video[]} = {};
+    videos.forEach(x => {
+      if (seasons[x.season]) {
+        return seasons[x.season].push(x)
+      }
+      return seasons[x.season] = [x]
+    })
+    return seasons;
   }
 
   async ngOnInit() {

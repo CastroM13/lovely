@@ -1,16 +1,29 @@
 <ion-header [translucent]="true">
-  <ion-searchbar (ionInput)="search($event)" animated [debounce]="300"></ion-searchbar>
+  <ion-toolbar>
+    <ion-segment [(ngModel)]="filter.type" (ngModelChange)="content.scrollToTop();updateFeedType();">
+      <ion-segment-button value="movie">
+        Filmes
+      </ion-segment-button>
+      <ion-segment-button [value]="null">
+        Todos
+      </ion-segment-button>
+      <ion-segment-button value="series">
+        Series
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+  <ion-searchbar [(ngModel)]="searchValue" (ionInput)="search()" animated [debounce]="300"></ion-searchbar>
 </ion-header>
-<ion-content>
+<ion-content #content>
   <ion-refresher slot="fixed" (ionRefresh)="loadFeed($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <div class="media-grid">
-    <div class="media" *ngFor="let item of (searchData || feedRendered)" (click)="openFeedItem(item)">
+    <div class="media" *ngFor="let item of (searchData || feedRendered) | query:filter" (click)="openFeedItem(item)">
       <img loading="lazy" [src]="item.poster" alt="">
     </div>
   </div>
-  <ion-infinite-scroll (ionInfinite)="onLoadMore($event)">
+  <ion-infinite-scroll *ngIf="!searchData" (ionInfinite)="onLoadMore($event)">
     <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>

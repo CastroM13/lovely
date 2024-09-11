@@ -8,25 +8,25 @@ interface TrailerStream {
     ytId: string;
 }
 
-interface Link {
+export interface Link {
     name: string;
     category: string;
     url: string;
 }
 
-interface Popularities {
+export interface Popularities {
     moviedb: number;
     stremio: number;
     stremio_lib: number;
     trakt: number;
 }
 
-interface BehaviorHints {
+export interface BehaviorHints {
     defaultVideoId: string;
     hasScheduledVideos: boolean;
 }
 
-interface Video {
+export interface Video {
     name: string;
     season: number;
     number: number;
@@ -63,7 +63,7 @@ export interface MovieSearchMetaData {
 export interface Meta {
     imdb_id: string;
     name: string;
-    type: string;
+    type: "series" | "movie" | null;
     cast: string[];
     country: string;
     description: string;

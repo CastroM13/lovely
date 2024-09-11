@@ -2,13 +2,13 @@
   <ion-toolbar>
     <ion-item lines="none">
       <ion-icon style="opacity: .5;" slot="start" name="search"></ion-icon>
-      <ion-input [(ngModel)]="filter.title" [clearInput]="true" clearInputIcon="close" class="text-center" fill="solid" shape="round"
+      <ion-input [(ngModel)]="filter.Title" [clearInput]="true" clearInputIcon="close" class="text-center" fill="solid" shape="round"
         placeholder="Buscar"></ion-input>
         <ion-icon (click)="visibleFilter = !visibleFilter" style="opacity: .5;" slot="end" name="chevron-down" [class.chevron-active]="visibleFilter"></ion-icon>
     </ion-item>
   </ion-toolbar>
   <ion-toolbar *ngIf="visibleFilter">
-    <ion-segment [(ngModel)]="filter.status">
+    <ion-segment [(ngModel)]="filter.Status">
       <ion-segment-button [value]="null">
         Todos
       </ion-segment-button>
@@ -29,7 +29,7 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <div class="media-grid">
-    <div class="media" *ngFor="let media of mediaCollection | search:'Title':filter.title" (click)="openMedia(media)">
+    <div class="media" *ngFor="let media of mediaCollection | query:filter" (click)="openMedia(media)">
       <ion-icon class="status-icon" *ngIf="media.Status" [name]="status.get(media.Status)?.name" [style.background-color]="status.get(media.Status)?.color"></ion-icon>
       <img loading="lazy" [src]="media.Poster" alt="">
     </div>

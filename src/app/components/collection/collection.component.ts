@@ -30,10 +30,8 @@ export class CollectionComponent {
     [MediaStatus.PENDING, {name: 'time-outline', color: 'gray'}]
   ]);
   visibleFilter = false;
-  filter = {
-    order: 'DESC',
-    title: null,
-    status: null
+  filter: Partial<Media> = {
+    Status: null
   }
 
   openMedia(media: Media) {

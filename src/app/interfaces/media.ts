@@ -23,6 +23,7 @@ export interface Media {
     Poster?: string | null;
     imdbID?: string | null;
     Remarks?: Remarks | null;
+    WatchedEpisodes?: string[] | null;
     Status?: MediaStatusType | null;
     __v: number;
     Reviews?: Reviews | null;
