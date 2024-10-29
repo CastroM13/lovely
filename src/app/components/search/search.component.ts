@@ -57,8 +57,10 @@ export class SearchComponent  implements OnInit {
   }
 
   openFeedItem(feedItem: FeedItem) {
-    this.router.navigate([feedItem.id], { relativeTo: this.activatedRoute, state: { fallback: feedItem } })
+    this.router.navigate([feedItem.id], { relativeTo: this.activatedRoute, state: { fallback: feedItem }, queryParams: { type: feedItem.type } })
   }
+
+  randomHexColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0') + 55;
 
   onLoadMore(ev?: InfiniteScrollCustomEvent) {
     this.feedRendered.push(...this.query.transform(this.feed, this.filter).slice(this.feedRendered.length, this.feedRendered.length + 10));

@@ -19,8 +19,9 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <div class="media-grid">
-    <div class="media" *ngFor="let item of (searchData || feedRendered) | query:filter" (click)="openFeedItem(item)">
-      <img loading="lazy" [src]="item.poster" alt="">
+    <div class="media" *ngFor="let item of (searchData || feedRendered) | query:filter" (click)="openFeedItem(item)" [style.background]="item.poster ? 'url(' + item.poster + ')' : 'linear-gradient(45deg, '+randomHexColor()+', '+randomHexColor()+')'">
+      <span *ngIf="!item.poster">{{item.name}}</span>
+      <time *ngIf="!item.poster">{{item.releaseInfo}}</time>
     </div>
   </div>
   <ion-infinite-scroll *ngIf="!searchData" (ionInfinite)="onLoadMore($event)">

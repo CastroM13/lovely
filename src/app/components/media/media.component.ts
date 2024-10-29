@@ -2,13 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonModal, LoadingController } from '@ionic/angular';
 import { lastValueFrom } from 'rxjs';
-import { FeedItem } from 'src/app/interfaces/feed';
 import { Media } from 'src/app/interfaces/media';
 import { MovieMetaData, QueryMedia, Video } from 'src/app/interfaces/metadata';
 import { FilminhoService } from 'src/app/services/filminho.service';
 import { StateService } from 'src/app/services/state.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { stringToHexColor } from 'src/app/utils';
+
+function* infiniteCycle() {
+  const values = ["tito", "jujuba", null];
+  let i = 0;
+  while (true) {
+    yield values[i];
+    i = (i + 1) % values.length;
+  }
+}
 
 @Component({
   selector: 'app-media',
@@ -26,17 +34,21 @@ export class MediaComponent implements OnInit {
     private stateService: StateService
   ) {
     this.id = this.route.snapshot.paramMap.get('id');
+    this.type = (this.route.snapshot.queryParamMap.get('type') ?? "movie") as "movie" | "series";
     this.media.imdbID = this.id;
     const navigation = this.router.getCurrentNavigation();
     this.fallbackMedia = navigation?.extras.state?.['fallback'];
   }
 
+  ownership = infiniteCycle();
+  activeIndex = -1;
   newRemark = 0;
   newReview: string = '';
   editable = true;
   dirty = false;
   loading = false;
   id: string | null;
+  type: "series" | "movie";
   token: string = '';
   fallbackMedia: QueryMedia;
   media: Partial<Media> = { Status: null, Remarks: {}, Reviews: {} };
@@ -62,12 +74,22 @@ export class MediaComponent implements OnInit {
   }
 
   editRemark(modal: IonModal) {
-    if (this.media.Remarks && this.media.Remarks[this.token] && this.media.Reviews && this.media.Reviews[this.token]) {
+    if (!this.media.Remarks) this.media.Remarks = {};
+    if (!this.media.Reviews) this.media.Reviews = {};
+    if (!this.media.Remarks[this.token]) {
+      this.media.Remarks = {[this.token]: 0};
+    }
+    if (!this.media.Reviews[this.token]) {
+      this.media.Reviews = {[this.token]: ""};
+    }
+    if (this.media.Remarks && this.media.Remarks[this.token]) {
       this.newRemark = this.media.Remarks[this.token] * 2;
+    }
+    if (this.media.Reviews && this.media.Reviews[this.token]) {
       this.newReview = this.media.Reviews[this.token];
     }
     modal.present();
-  }
+  }  
 
   shallowDiff(obj1: Record<string, any>, obj2: Record<string, any>): any {
     const flatObj1 = this.flattenObject(obj1);
@@ -108,12 +130,14 @@ export class MediaComponent implements OnInit {
       const media = x.collections?.find(collection => collection.imdbID === this.id);
       if (media) {
         this.media = media;
+        if (this.media.Type === 'series' && !this.media.WatchedEpisodes) this.media.WatchedEpisodes = [];
         this.originalMedia = JSON.parse(JSON.stringify(media));
       }
     })
   }
 
   publishReview() {
+    console.log(this.media)
     if (this.media.Remarks) this.media.Remarks[this.token] = this.newRemark / 2;
     if (this.media.Reviews) this.media.Reviews[this.token] = this.newReview;
   }
@@ -141,22 +165,30 @@ export class MediaComponent implements OnInit {
     this.dirty = false;
   }
 
-  markAsWatched(episode: Video) {
-    const seCode = `S${String(episode.season).padStart(2, '0')}E${String(episode.number).padStart(2, '0')}`;
-    if (this.media.WatchedEpisodes) {
-      return this.media.WatchedEpisodes.push(seCode);
-    }
-    return this.media.WatchedEpisodes = [seCode]
+  isSeasonWatched(season: { key: string, value: Video[] }) {
+    const seCodes = season.value.map(this.seCode);
+    return seCodes.every(x => this.media.WatchedEpisodes?.includes(x))
   }
 
-  isActive(episode: Video) {
-    this.media.WatchedEpisodes = ['S01E01'];
-    const seCode = `S${String(episode.season).padStart(2, '0')}E${String(episode.number).padStart(2, '0')}`;
-    if (this.media.WatchedEpisodes) {
-      return this.media.WatchedEpisodes.includes(seCode);
+  markSeasonAsWatched(season: { key: string, value: Video[] }) {
+    const seCodes = season.value.map(this.seCode);
+    if (seCodes.every(x => this.media.WatchedEpisodes?.includes(x))) {
+      return this.media.WatchedEpisodes = this.media.WatchedEpisodes?.filter(x => !seCodes.includes(x));
     }
-    return false;
+    this.media.WatchedEpisodes = this.media.WatchedEpisodes?.filter(x => !seCodes.includes(x));
+    return this.media.WatchedEpisodes?.push(...seCodes);
   }
+
+  markAsWatched(episode: Video) {
+    const seCode = this.seCode(episode);
+    this.dirty = true;
+    if (this.media.WatchedEpisodes?.includes(seCode)) {
+      return this.media.WatchedEpisodes = this.media.WatchedEpisodes.filter(se => se !== seCode);
+    }
+    return this.media.WatchedEpisodes?.push(seCode);
+  }
+
+  public seCode = (episode: Video) => `S${String(episode.season).padStart(2, '0')}E${String(episode.number).padStart(2, '0')}`;
 
   generateSeasons(videos: Video[]) {
     const seasons: {[key: number]: Video[]} = {};
@@ -172,7 +204,7 @@ export class MediaComponent implements OnInit {
   async ngOnInit() {
     this.fetchMedia();
     this.storageService.get('token').then(token => this.token = token);
-    if (this.id) this.metadata = await lastValueFrom(this.filminhoService.getMediaMetadata(this.id))
+    if (this.id) this.metadata = await lastValueFrom(this.filminhoService.getMediaMetadata(this.type, this.id))
   }
 
   routeTo(genre: string) {

@@ -35,7 +35,7 @@ export class CollectionComponent {
   }
 
   openMedia(media: Media) {
-    this.router.navigate([media.imdbID], { relativeTo: this.activatedRoute })
+    this.router.navigate([media.imdbID], { relativeTo: this.activatedRoute, queryParams: { type: media.Type} })
   }
 
   async loadMediaCollection(event?: { target: { complete: () => void } }) {

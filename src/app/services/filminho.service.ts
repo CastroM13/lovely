@@ -33,8 +33,9 @@ export class FilminhoService {
     return this.http.get<FeedItem[]>(environment.feedUrl)
   }
 
-  getMediaMetadata(tt: string) {
-    return this.http.get<MovieMetaData>(environment.metadaDataUrl(tt))
+  getMediaMetadata(type: 'series' | 'movie', tt: string) {
+    console.log(type)
+    return this.http.get<MovieMetaData>(environment.metadaDataUrl(type, tt))
   }
 
   search(type: 'series' | 'movie', value: string) {

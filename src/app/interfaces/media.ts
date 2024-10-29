@@ -18,6 +18,7 @@ export interface Media {
     _id: string | null;
     Title?: string | null;
     Timestamp?: string | null;
+    Ownership?: string | null;
     Year?: string | null;
     Type?: string | null;
     Poster?: string | null;

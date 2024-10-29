@@ -1,3 +1,31 @@
+<ion-chip color="secondary" *ngIf="media._id" class="collection">
+  <ion-icon name="film-outline"></ion-icon>
+  <ion-label>Coleção</ion-label>
+</ion-chip>
+<ion-chip [ngSwitch]="media.Ownership" (click)="media.Ownership = ownership.next().value!; dirty = true" class="ownership">
+  <ng-container *ngSwitchCase="'tito'">
+    <ion-label>Modo tito</ion-label>
+    <ion-avatar>
+      <img src="assets/tito.jpg" alt="">
+    </ion-avatar>
+  </ng-container>
+  <ng-container *ngSwitchCase="'jujuba'">
+    <ion-label>Modo jujuba</ion-label>
+    <ion-avatar>
+      <img src="assets/jujuba.jpg" alt="">
+    </ion-avatar>
+  </ng-container>
+  <ng-container *ngSwitchDefault>
+    <div class="we-wrapper">
+      <ion-avatar>
+        <img src="assets/tito.jpg" alt="">
+      </ion-avatar>
+      <ion-avatar>
+        <img src="assets/jujuba.jpg" alt="">
+      </ion-avatar>
+    </div>
+  </ng-container>
+</ion-chip>
 <ion-content *ngIf="metadata && metadata.meta">
   <ion-toolbar slot="start">
     <ion-buttons>
@@ -67,7 +95,25 @@
             <ion-icon slot="start" name="play-sharp"></ion-icon>
           </ion-range>
         </div>
-        <ion-accordion-group *ngIf="metadata.meta.videos">
+        <div class="details-wrapper" *ngIf="metadata.meta.videos">
+          <div class="details" [ngClass]="{'open': activeIndex === i}"
+            *ngFor="let season of generateSeasons(metadata.meta.videos) | keyvalue; let i = index">
+            <div class="header" (click)="activeIndex = activeIndex === i ? -1 : i">
+              <ion-checkbox (ionChange)="markSeasonAsWatched(season)"
+                [checked]="isSeasonWatched(season)"></ion-checkbox>
+              <span>Temporada {{season.key}}</span>
+            </div>
+            <div class="content">
+              <div class="episode" *ngFor="let episode of season.value">
+                <time>{{episode.number}}</time>
+                <span>{{episode.name}}</span>
+                <ion-checkbox (ionChange)="markAsWatched(episode)"
+                  [checked]="media.WatchedEpisodes?.includes(seCode(episode))"></ion-checkbox>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <ion-accordion-group *ngIf="metadata.meta.videos">
           <ion-accordion *ngFor="let season of generateSeasons(metadata.meta.videos) | keyvalue" [value]="season.key">
             <ion-item slot="header" color="light">
               <ion-label>Temporada {{season.key}}</ion-label>
@@ -75,26 +121,29 @@
             <ion-item-group slot="content">
               <ion-item *ngFor="let episode of season.value">
                 {{episode.number}}. {{episode.name}}
-                <ion-checkbox (ionChange)="markAsWatched(episode)" [checked]="isActive(episode)" slot="end"></ion-checkbox>
+                <ion-checkbox (ionChange)="markAsWatched(episode, $event)" [checked]="media.WatchedEpisodes?.includes(seCode(episode))" slot="end"></ion-checkbox>
               </ion-item>
             </ion-item-group>
           </ion-accordion>
-        </ion-accordion-group>
+        </ion-accordion-group> -->
       </div>
       <div *ngSwitchCase="'Watched'">
         <div class="review-chat">
           <ng-container *ngFor="let review of media.Reviews | keyvalue">
-            <div class="review" *ngIf="review.value">
+            <div class="review">
               <ion-avatar>
                 <img [src]="'assets/'+review.key+'.jpg'" />
               </ion-avatar>
-              <ion-card class="ion-no-margin ion-padding comment" (click)="review.key === token ? editRemark(modal) : null">
-                {{review.value}}
+              <ion-card class="ion-no-margin ion-padding comment"
+                (click)="review.key === token ? editRemark(modal) : null">
+                <span *ngIf="review.value">
+                  {{review.value}}
+                </span>
                 <span class="stars">{{media.Remarks![review.key]}} <ion-icon name="star"></ion-icon></span>
               </ion-card>
             </div>
           </ng-container>
-          <div class="review" *ngIf="!media.Reviews || !media.Reviews[token]">
+          <div class="review" *ngIf="(!media.Reviews || !media.Reviews[token]) && (!media.Remarks || !media.Remarks[token])">
             <ion-avatar>
               <img [src]="'assets/'+token+'.jpg'" />
             </ion-avatar>
