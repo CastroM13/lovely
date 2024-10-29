@@ -90,3 +90,14 @@ export interface Meta {
     videos: Video[];
     behaviorHints: BehaviorHints;
 }
+
+export interface Magnet {
+    name: string;
+    title: string;
+    infoHash: string;
+    fileIdx: number;
+    behaviorHints: {
+        bingeGroup: string;
+        filename: string;
+    }
+}

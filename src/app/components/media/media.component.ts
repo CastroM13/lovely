@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonModal, LoadingController } from '@ionic/angular';
+import { AlertController, IonModal, LoadingController } from '@ionic/angular';
 import { lastValueFrom } from 'rxjs';
 import { Media } from 'src/app/interfaces/media';
-import { MovieMetaData, QueryMedia, Video } from 'src/app/interfaces/metadata';
+import { Magnet, MovieMetaData, QueryMedia, Video } from 'src/app/interfaces/metadata';
 import { FilminhoService } from 'src/app/services/filminho.service';
 import { StateService } from 'src/app/services/state.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -31,7 +31,8 @@ export class MediaComponent implements OnInit {
     private router: Router,
     private storageService: StorageService,
     private loadingController: LoadingController,
-    private stateService: StateService
+    private stateService: StateService,
+    private alertController: AlertController
   ) {
     this.id = this.route.snapshot.paramMap.get('id');
     this.type = (this.route.snapshot.queryParamMap.get('type') ?? "movie") as "movie" | "series";
@@ -39,7 +40,12 @@ export class MediaComponent implements OnInit {
     const navigation = this.router.getCurrentNavigation();
     this.fallbackMedia = navigation?.extras.state?.['fallback'];
   }
-
+  magnetLoading = false;
+  languages: string[] = [];
+  selectedLanguages: string[] = [];
+  magnets: Magnet[] = [];
+  filter: Partial<Magnet> = {};
+  segment = "about";
   ownership = infiniteCycle();
   activeIndex = -1;
   newRemark = 0;
@@ -89,7 +95,16 @@ export class MediaComponent implements OnInit {
       this.newReview = this.media.Reviews[this.token];
     }
     modal.present();
-  }  
+  }
+
+  openMagnet(hash: string) {
+    window.open('magnet:?xt=urn:btih:'+hash)
+  }
+
+  toggleLanguage(lang: string) {
+    if (this.selectedLanguages.includes(lang)) return this.selectedLanguages = this.selectedLanguages.filter(sl => sl !== lang);
+    return this.selectedLanguages.push(lang);
+  }
 
   shallowDiff(obj1: Record<string, any>, obj2: Record<string, any>): any {
     const flatObj1 = this.flattenObject(obj1);
@@ -111,8 +126,49 @@ export class MediaComponent implements OnInit {
     return diff;
   }
 
+  async presentEpisodeDescription(episode: Video) {
+    const alert = await this.alertController.create({
+      header: episode.name,
+      subHeader: this.seCode(episode),
+      message: episode.overview,
+      buttons: [{
+        text: "Buscar magnet",
+        handler: () => {
+          this.filter.title = this.seCode(episode),
+          this.toggleSegment();
+        }
+      }]
+    });
+
+    await alert.present();
+  }
+
+  addToLanguages(lang: string) {
+    if (this.languages.includes(lang)) return;
+    this.languages.push(lang);
+  }
+
+  async toggleSegment() {
+    this.segment = (this.segment === 'streams' ? 'about' : 'streams')
+    if (this.segment === 'streams') {
+      this.magnetLoading = true;
+      this.magnets = (await lastValueFrom(this.filminhoService.getTorrents(this.id!))).streams;
+      this.magnets.forEach(magnet => {
+        const languages = magnet.title.split('\n')[2];
+        if (languages) {
+          magnet.title.split('\n')[2].match(/[\u{1F1E6}-\u{1F1FF}]{2}/gu)?.forEach(e => this.addToLanguages(e))
+        }
+      })
+      this.magnetLoading = false;
+    }
+  }
+
   async updateMediaCollection() {
     this.stateService.state = { collections: await lastValueFrom(this.filminhoService.getCollection()) };
+  }
+
+  onSearchChange(event: Event) {
+    this.filter.title = (event.target as HTMLInputElement).value;
   }
 
   async fetchMedia() {

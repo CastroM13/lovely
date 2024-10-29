@@ -1,31 +1,3 @@
-<ion-chip color="secondary" *ngIf="media._id" class="collection">
-  <ion-icon name="film-outline"></ion-icon>
-  <ion-label>Coleção</ion-label>
-</ion-chip>
-<ion-chip [ngSwitch]="media.Ownership" (click)="media.Ownership = ownership.next().value!; dirty = true" class="ownership">
-  <ng-container *ngSwitchCase="'tito'">
-    <ion-label>Modo tito</ion-label>
-    <ion-avatar>
-      <img src="assets/tito.jpg" alt="">
-    </ion-avatar>
-  </ng-container>
-  <ng-container *ngSwitchCase="'jujuba'">
-    <ion-label>Modo jujuba</ion-label>
-    <ion-avatar>
-      <img src="assets/jujuba.jpg" alt="">
-    </ion-avatar>
-  </ng-container>
-  <ng-container *ngSwitchDefault>
-    <div class="we-wrapper">
-      <ion-avatar>
-        <img src="assets/tito.jpg" alt="">
-      </ion-avatar>
-      <ion-avatar>
-        <img src="assets/jujuba.jpg" alt="">
-      </ion-avatar>
-    </div>
-  </ng-container>
-</ion-chip>
 <ion-content *ngIf="metadata && metadata.meta">
   <ion-toolbar slot="start">
     <ion-buttons>
@@ -35,11 +7,50 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <div class="banner" [style.--bg]="'url(' + (metadata.meta.background || media.Poster) + ')'">
+  <div class="banner" [style.--bg]="'url(' + (metadata.meta.background || media.Poster) + ')'"><ion-chip
+      color="secondary" *ngIf="media._id" class="collection">
+      <ion-icon name="film-outline"></ion-icon>
+      <ion-label>Coleção</ion-label>
+    </ion-chip>
+    <ion-chip [ngSwitch]="media.Ownership" (click)="media.Ownership = ownership.next().value!; dirty = true"
+      class="ownership">
+      <ng-container *ngSwitchCase="'tito'">
+        <ion-label>Modo tito</ion-label>
+        <ion-avatar>
+          <img src="assets/tito.jpg" alt="">
+        </ion-avatar>
+      </ng-container>
+      <ng-container *ngSwitchCase="'jujuba'">
+        <ion-label>Modo jujuba</ion-label>
+        <ion-avatar>
+          <img src="assets/jujuba.jpg" alt="">
+        </ion-avatar>
+      </ng-container>
+      <ng-container *ngSwitchDefault>
+        <div class="we-wrapper">
+          <ion-avatar>
+            <img src="assets/tito.jpg" alt="">
+          </ion-avatar>
+          <ion-avatar>
+            <img src="assets/jujuba.jpg" alt="">
+          </ion-avatar>
+        </div>
+      </ng-container>
+    </ion-chip>
+    <ion-chip class="segment" (click)="toggleSegment()">
+      <ng-container *ngIf="segment === 'about'">
+        <ion-icon name="magnet-outline"></ion-icon>
+        <ion-label>Streams</ion-label>
+      </ng-container>
+      <ng-container *ngIf="segment === 'streams'">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <ion-label>Sobre</ion-label>
+      </ng-container>
+    </ion-chip>
     <div class="gradient"></div>
-    <img [src]="metadata.meta.logo" alt="">
+    <img class="logo" [src]="metadata.meta.logo" alt="">
   </div>
-  <div class="p">
+  <div class="p" [hidden]="segment !== 'about'">
     <time>{{metadata.meta.director || metadata.meta.country }}</time>
     <h1>{{metadata.meta.name}}</h1>
     <br>
@@ -106,26 +117,13 @@
             <div class="content">
               <div class="episode" *ngFor="let episode of season.value">
                 <time>{{episode.number}}</time>
-                <span>{{episode.name}}</span>
+                <span (click)="presentEpisodeDescription(episode)">{{episode.name}}</span>
                 <ion-checkbox (ionChange)="markAsWatched(episode)"
                   [checked]="media.WatchedEpisodes?.includes(seCode(episode))"></ion-checkbox>
               </div>
             </div>
           </div>
         </div>
-        <!-- <ion-accordion-group *ngIf="metadata.meta.videos">
-          <ion-accordion *ngFor="let season of generateSeasons(metadata.meta.videos) | keyvalue" [value]="season.key">
-            <ion-item slot="header" color="light">
-              <ion-label>Temporada {{season.key}}</ion-label>
-            </ion-item>
-            <ion-item-group slot="content">
-              <ion-item *ngFor="let episode of season.value">
-                {{episode.number}}. {{episode.name}}
-                <ion-checkbox (ionChange)="markAsWatched(episode, $event)" [checked]="media.WatchedEpisodes?.includes(seCode(episode))" slot="end"></ion-checkbox>
-              </ion-item>
-            </ion-item-group>
-          </ion-accordion>
-        </ion-accordion-group> -->
       </div>
       <div *ngSwitchCase="'Watched'">
         <div class="review-chat">
@@ -143,7 +141,8 @@
               </ion-card>
             </div>
           </ng-container>
-          <div class="review" *ngIf="(!media.Reviews || !media.Reviews[token]) && (!media.Remarks || !media.Remarks[token])">
+          <div class="review"
+            *ngIf="(!media.Reviews || !media.Reviews[token]) && (!media.Remarks || !media.Remarks[token])">
             <ion-avatar>
               <img [src]="'assets/'+token+'.jpg'" />
             </ion-avatar>
@@ -154,6 +153,44 @@
         </div>
       </div>
     </ng-container>
+  </div>
+  <div class="p" [hidden]="segment !== 'streams'">
+    <div class="px">
+      <ion-chip class="lang" [color]="selectedLanguages.includes(lang) ? '' : 'light'" (click)="toggleLanguage(lang)" *ngFor="let lang of languages">{{lang}}</ion-chip>
+    </div>
+    <ion-searchbar [value]="filter.title" placeholder="Buscar magnets" searchIcon="false" animated="true" (ionInput)="onSearchChange($event)" [debounce]="250"
+      showClearButton></ion-searchbar>
+    @if (!magnetLoading) {
+    @for (magnet of magnets | query:filter | query:{title: selectedLanguages.join(' / ')}; track $index) {
+    <ion-card (click)="openMagnet(magnet.infoHash)">
+      <ion-card-header>
+        <ion-card-title>{{magnet.title.split('\n')[0]}}</ion-card-title>
+        <ion-card-subtitle>
+          <span>{{magnet.title.split('\n')[1]}}</span>
+          <span *ngIf="magnet.title.split('\n')[2] as lang">
+            - {{lang}}
+          </span>
+        </ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+    }
+    @empty {
+    <span>Nenhum magnet encontrado</span>
+    }
+    }
+    @else {
+      <ion-card  *ngFor="let i of [].constructor(5)">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-skeleton-text [animated]="true" style="width: 80%;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+          </ion-card-title>
+          <ion-card-subtitle>
+            <span><ion-skeleton-text [animated]="true" style="width: 40%;"></ion-skeleton-text></span>
+          </ion-card-subtitle>
+        </ion-card-header>
+      </ion-card>
+    }
   </div>
   <ion-modal #modal draggable="false" [initialBreakpoint]="0.3" [breakpoints]="[0.3, 0.5, 0.75]">
     <ng-template>

@@ -87,6 +87,14 @@ ion-header {
     padding: 16px;
 }
 
+.px {
+    padding: 0 16px;
+}
+
+.py {
+    padding: 16 0;
+}
+
 hr[v] {
     width: 1px; height: 20px; display: inline-block;
     background: rgba(255, 255, 255, 0.186);

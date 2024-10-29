@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Media } from '../interfaces/media';
 import { FeedItem } from '../interfaces/feed';
-import { MovieMetaData, MovieSearchMetaData } from '../interfaces/metadata';
+import { Magnet, MovieMetaData, MovieSearchMetaData } from '../interfaces/metadata';
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +34,11 @@ export class FilminhoService {
   }
 
   getMediaMetadata(type: 'series' | 'movie', tt: string) {
-    console.log(type)
     return this.http.get<MovieMetaData>(environment.metadaDataUrl(type, tt))
+  }
+
+  getTorrents(tt: string) {
+    return this.http.get<{streams:Magnet[]}>(environment.torrentUrl(tt))
   }
 
   search(type: 'series' | 'movie', value: string) {
