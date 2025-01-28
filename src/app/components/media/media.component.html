@@ -8,7 +8,7 @@
     </ion-buttons>
   </ion-toolbar>
   <div class="banner" [style.--bg]="'url(' + (metadata.meta.background || media.Poster) + ')'"><ion-chip
-      color="secondary" *ngIf="media._id" class="collection">
+      color="secondary" *ngIf="media.id" class="collection">
       <ion-icon name="film-outline"></ion-icon>
       <ion-label>Coleção</ion-label>
     </ion-chip>

@@ -1,0 +1,27 @@
+.modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(96px + 2rem), 1fr));
+  margin: 2rem;
+  justify-items: center;
+  .module-button {
+    padding: 10px;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    gap: 6px;
+    user-select: none;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    img {
+      max-height: 96px;
+      max-width: 96px;
+      border-radius: 25px;
+      aspect-ratio: 1/1;
+    }
+    &.active {
+      background-color: #5c5c5c45;
+      border-radius: 35px;
+    }
+  }
+}

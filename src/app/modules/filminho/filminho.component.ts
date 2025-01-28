@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ModulesService } from '../modules.service';
 
 @Component({
-  selector: 'app-namorico',
-  templateUrl: './namorico.component.html'
+  selector: 'app-filminho',
+  templateUrl: './filminho.component.html'
 })
-export class NamoricoComponent  implements OnInit {
+export class FilminhoComponent  implements OnInit {
 
   constructor(private module: ModulesService) { }
 

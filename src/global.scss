@@ -103,3 +103,22 @@ hr[v] {
 .chevron-active {
     transform: rotate(180deg);
 }
+
+.card-menu {
+    --height: calc(100vw - 2rem);
+    --width: calc(100vw - 2rem);
+    --border-radius: 25px;
+    --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+}
+
+.card-menu::part(backdrop) {
+    background: rgba(55, 55, 55, 0.3);
+    opacity: .5;
+}
+
+.card-menu ion-toolbar {
+    --background: rgb(14 116 144);
+    --color: white;
+}

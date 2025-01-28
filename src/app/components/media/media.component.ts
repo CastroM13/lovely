@@ -201,9 +201,9 @@ export class MediaComponent implements OnInit {
   async upsert() {
     const loading = await this.loadingController.create();
     loading.present()
-    if (this.media._id) {
-      const result = await lastValueFrom(this.filminhoService.updateMedia(this.media._id, this.shallowDiff(this.originalMedia, this.media)));
-      if (result.statusCode === 201) this.updateMediaCollection();
+    if (this.media.id) {
+      await lastValueFrom(this.filminhoService.updateMedia(this.media.id, this.shallowDiff(this.originalMedia, this.media)));
+      this.updateMediaCollection();
     } else {
       const newMedia = this.media;
       if (this.metadata) {
@@ -214,8 +214,8 @@ export class MediaComponent implements OnInit {
         if (meta.poster) newMedia.Poster = meta.poster;
         if (meta.imdb_id) newMedia.imdbID = meta.imdb_id;
       }
-      const result = await lastValueFrom(this.filminhoService.createMedia(newMedia));
-      if (result.statusCode === 201) this.updateMediaCollection();
+      await lastValueFrom(this.filminhoService.createMedia(newMedia));
+      this.updateMediaCollection();
     }
     loading.dismiss();
     this.dirty = false;
@@ -228,6 +228,7 @@ export class MediaComponent implements OnInit {
 
   markSeasonAsWatched(season: { key: string, value: Video[] }) {
     const seCodes = season.value.map(this.seCode);
+    this.dirty = true;
     if (seCodes.every(x => this.media.WatchedEpisodes?.includes(x))) {
       return this.media.WatchedEpisodes = this.media.WatchedEpisodes?.filter(x => !seCodes.includes(x));
     }

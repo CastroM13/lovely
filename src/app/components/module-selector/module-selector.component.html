@@ -1,0 +1,7 @@
+
+<div class="modules">
+  <a *ngFor="let module of modules" class="module-button" draggable="false" (click)="modal.dismiss()" [routerLink]="module.url" #anchor [class.active]="router.url.includes(module.url)">
+    <img [src]="module.icon" draggable="false">
+    {{module.title}}
+  </a>
+</div>

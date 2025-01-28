@@ -15,7 +15,7 @@ export const MediaStatus = {
 export type MediaStatusType = (typeof MediaStatus)[keyof typeof MediaStatus];
 
 export interface Media {
-    _id: string | null;
+    id: string | null;
     Title?: string | null;
     Timestamp?: string | null;
     Ownership?: string | null;

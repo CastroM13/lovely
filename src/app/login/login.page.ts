@@ -23,7 +23,7 @@ export class LoginPage implements OnInit {
     this.filminhoService.auth((event.target as HTMLInputElement).value).subscribe({
       next: (res) => {
         this.storageService.set('token', res.token);
-        this.router.navigate(['/filminho'])
+        this.router.navigate(['/modules/filminho'])
       }
     })
   }

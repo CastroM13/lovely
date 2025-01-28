@@ -1,0 +1,38 @@
+.sub-extra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.categories {
+    width: 100%;
+    display: grid;
+    gap: 5px;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    overflow: hidden;
+    .icon {
+        font-size: 1.5rem;
+    }
+    .category {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        background-color: var(--ion-color-dark);
+        border-radius: 10px;
+        font-size: .75rem;
+        text-align: center;
+        padding: 12px 2px;
+        color: grey;
+    }
+    .new-category {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        border: 1px solid var(--ion-color-dark);
+        border-radius: 10px;
+        font-size: .75rem;
+        text-align: center;
+        padding: 12px 2px;
+        color: grey;
+    }
+}

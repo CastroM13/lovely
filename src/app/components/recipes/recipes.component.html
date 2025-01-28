@@ -1,0 +1,21 @@
+<!-- <input type="file" (change)="onFileSelected($event)"> -->
+<ion-content class="ion-padding">
+  <p>Olá, {{token}}</p>
+  <h2>O que vamos cozinhar hoje?</h2>
+  <ion-searchbar mode="ios" placeholder="Pesquisar por receitas" (ionChange)="onSearchChange($event)" [debounce]="250"></ion-searchbar>
+  <div class="sub-extra">
+    <h4>Categorias</h4>
+    <ion-note>Ver todos</ion-note>
+  </div>
+  <div class="categories">
+    <div class="category" *ngFor="let category of categories">
+      <div class="icon">{{category.icon}}</div>
+      <span>{{category.title}}</span>
+    </div>
+    <div class="new-category">
+      <div class="icon">+</div>
+      <span>Novo</span>
+    </div>
+  </div>
+  <h4>Últimos adicionados</h4>
+</ion-content>

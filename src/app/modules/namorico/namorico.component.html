@@ -1,3 +1,17 @@
-<p>
-  namorico works!
-</p>
+<ion-tabs>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="recipes">
+      <ion-icon aria-hidden="true" name="pizza-outline"></ion-icon>
+      <ion-label>Receitas</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button (click)="openModuleMenu()">
+      <ion-icon aria-hidden="true" name="lovely"></ion-icon>
+    </ion-tab-button>
+
+    <ion-tab-button tab="dates">
+      <ion-icon aria-hidden="true" name="calendar-outline"></ion-icon>
+      <ion-label>Encontros</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

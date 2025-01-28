@@ -1,0 +1,15 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Configurações</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item-divider>
+    <ion-label>Tema</ion-label>
+  </ion-item-divider>
+  <ion-item *ngFor="let color of colors">
+    <ion-label>{{color.title}}</ion-label>
+    <input type="color" [ngModel]="color.value" (ngModelChange)="applyTheme(color.key, $event)" />
+  </ion-item>
+</ion-content>
