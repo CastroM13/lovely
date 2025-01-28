@@ -1,14 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Renderer2 } from '@angular/core';
 import { Platform } from '@ionic/angular';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-app-settings',
   templateUrl: './app-settings.component.html',
   styleUrls: ['./app-settings.component.scss'],
 })
-export class AppSettingsComponent {
-  constructor(private renderer: Renderer2, private platform: Platform) {}
+export class AppSettingsComponent implements OnInit {
+  constructor(private storageService: StorageService) { }
 
   selectedColor: string = 'default';
   customColor: string = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary').trim();
@@ -34,7 +35,21 @@ export class AppSettingsComponent {
     return getComputedStyle(document.documentElement).getPropertyValue(clss).trim()
   }
 
-  applyTheme(key: string, color: string) {
+  async ngOnInit() {
+    const localThemes = await this.storageService.getObject<{[key: string]: string}>("theme");
+    if (localThemes) {
+      Object.entries(localThemes).forEach(theme => this.colors[this.colors.findIndex(color => color.key === theme[0])].value = theme[1])
+    }
+  }
+
+  async applyTheme(key: string, color: string) {
+    const localTheme = await this.storageService.getObject<{ [key: string]: string }>("theme");
+    if (localTheme) {
+      localTheme[key] = color;
+      this.storageService.setObject("theme", localTheme);
+    } else {
+      this.storageService.setObject("theme", { [key]: color });
+    }
     document.documentElement.style.setProperty(key, color);
   }
 }

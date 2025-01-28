@@ -20,5 +20,9 @@ export class AppComponent implements OnInit {
 
   async ngOnInit() {
     this.stateService.state = {collections: await lastValueFrom(this.filminhoService.getCollection())};
+    const localThemes = await this.storageService.getObject<{[key: string]: string}>("theme");
+    if (localThemes) {
+      Object.entries(localThemes).forEach(theme => document.documentElement.style.setProperty(theme[0], theme[1]))
+    }
   }
 }
