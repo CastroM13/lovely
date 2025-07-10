@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Build Angular app
-        run: npm run build
+        run: npm run build -- --base-href /
 
       - name: Copy CNAME for GitHub Pages
         run: cp CNAME www/CNAME
