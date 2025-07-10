@@ -8,7 +8,7 @@
     </ion-buttons>
   </ion-toolbar>
   <div class="banner" [style.--bg]="'url(' + (metadata.meta.background || media.Poster) + ')'"><ion-chip
-      color="secondary" *ngIf="media.id" class="collection">
+      color="secondary" *ngIf="media._id" class="collection">
       <ion-icon name="film-outline"></ion-icon>
       <ion-label>Coleção</ion-label>
     </ion-chip>
@@ -142,7 +142,7 @@
             </div>
           </ng-container>
           <div class="review"
-            *ngIf="(!media.Reviews || !media.Reviews[token]) && (!media.Remarks || !media.Remarks[token])">
+          *ngIf="(!media.Reviews || !media.Reviews[token]) && (!media.Remarks || !media.Remarks[token])">
             <ion-avatar>
               <img [src]="'assets/'+token+'.jpg'" />
             </ion-avatar>
@@ -192,8 +192,18 @@
       </ion-card>
     }
   </div>
-  <ion-modal #modal draggable="false" [initialBreakpoint]="0.3" [breakpoints]="[0.3, 0.5, 0.75]">
+  <ion-modal #modal draggable="false">
     <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="modal.dismiss()">
+              <ion-icon slot="start" name="chevron-back-sharp"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+          <ion-title>Review</ion-title>
+        </ion-toolbar>
+      </ion-header>
       <ion-content>
         <div class="rating">
           <ion-range [(ngModel)]="newRemark" [ticks]="true" [snaps]="true" [min]="0" [max]="10"></ion-range>
@@ -212,7 +222,11 @@
             placeholder="Digite o seu review!">
           </ion-textarea>
         </ion-card>
-        <ion-button class="ion-padding" expand="block" (click)="publishReview();upsert()">
+        <ion-button [disabled]="newRemark === 0" class="ion-padding" expand="block" (click)="saveReview(modal)" *ngIf="!media._id">
+          <ion-icon slot="start" name="send-sharp" aria-hidden="true"></ion-icon>
+          Salvar review
+        </ion-button>
+        <ion-button [disabled]="newRemark === 0" class="ion-padding" expand="block" (click)="publishReview(modal)" *ngIf="media._id">
           <ion-icon slot="start" name="send-sharp" aria-hidden="true"></ion-icon>
           Publicar review
         </ion-button>

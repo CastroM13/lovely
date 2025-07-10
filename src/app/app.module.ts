@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
 
@@ -23,6 +23,12 @@ import { RecipesComponent } from './components/recipes/recipes.component';
 import { SettingsComponent } from './modules/settings/settings.component';
 import { AppSettingsComponent } from './components/app-settings/app-settings.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
+import { StorageService } from './services/storage.service';
+
+export function initStorage(storageService: StorageService) {
+  return () => storageService.init();
+}
+
 @NgModule({
   declarations: [AppComponent, CollectionComponent, SearchComponent, MediaComponent, ModulesComponent, FilminhoComponent, NamoricoComponent, ModuleSelectorComponent, RecipesComponent, SettingsComponent, AppSettingsComponent, UserSettingsComponent],
   imports: [
@@ -41,7 +47,13 @@ import { UserSettingsComponent } from './components/user-settings/user-settings.
   providers: [
     StateService,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideHttpClient(withInterceptorsFromDi())
+    provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initStorage,
+      deps: [StorageService],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent],
 })

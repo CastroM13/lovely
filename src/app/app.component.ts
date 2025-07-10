@@ -12,14 +12,12 @@ import { lastValueFrom } from 'rxjs';
 })
 export class AppComponent implements OnInit {
   constructor(public storageService: StorageService, private stateService: StateService, private filminhoService: FilminhoService) {
-    storageService.init();
     addIcons({
       'lovely': 'assets/icon/lovely.svg'
     })
   }
 
   async ngOnInit() {
-    this.stateService.state = {collections: await lastValueFrom(this.filminhoService.getCollection())};
     const localThemes = await this.storageService.getObject<{[key: string]: string}>("theme");
     if (localThemes) {
       Object.entries(localThemes).forEach(theme => document.documentElement.style.setProperty(theme[0], theme[1]))

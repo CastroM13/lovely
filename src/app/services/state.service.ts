@@ -18,11 +18,13 @@ export class StateService {
 	set state(state) {
 		this.savedState = state;
 		if (state) {
-			this.write('state', state);
-			this.state$.next(state);
+			this.write('state', state).then(() => {
+				this.state$.next(state);
+			});
 		} else {
-			this.remove('state');
-			this.state$.next({});
+			this.remove('state').then(() => {
+				this.state$.next({});
+			});
 		}
 	}
 
@@ -30,11 +32,11 @@ export class StateService {
 		return this.savedState;
 	}
 
-	write(key: string, val: any) {
-		return this.storage.set(key, val);
+	async write(key: string, val: any) {
+		return await this.storage.setItem(key, val);
 	}
 
-	remove(key: string) {
-		return this.storage.remove(key);
+	async remove(key: string) {
+		return await this.storage.removeItem(key);
 	}
 }

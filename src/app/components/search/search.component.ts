@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { InfiniteScrollCustomEvent } from '@ionic/angular';
+import { InfiniteScrollCustomEvent, Platform } from '@ionic/angular';
 import { forkJoin, lastValueFrom } from 'rxjs';
 import { FeedItem } from 'src/app/interfaces/feed';
 import { Meta, MovieSearchMetaData } from 'src/app/interfaces/metadata';
@@ -17,7 +17,8 @@ export class SearchComponent  implements OnInit {
   constructor(
     private filminhoService: FilminhoService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private platform: Platform
   ) { }
 
   query = new QueryPipe();
@@ -28,9 +29,16 @@ export class SearchComponent  implements OnInit {
   filter: Partial<FeedItem> = {
     type: null
   };
+  size = 10;
+  isMobile = false;
 
   async ngOnInit() {
+    this.isMobile = await this.platform.is('mobile');
+    this.size = this.isMobile ? 10 : 30;
     this.loadFeed();
+  }
+
+  async ionViewWillEnter() {
   }
 
   async search() {
@@ -63,7 +71,7 @@ export class SearchComponent  implements OnInit {
   randomHexColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0') + 55;
 
   onLoadMore(ev?: InfiniteScrollCustomEvent) {
-    this.feedRendered.push(...this.query.transform(this.feed, this.filter).slice(this.feedRendered.length, this.feedRendered.length + 10));
+    this.feedRendered.push(...this.query.transform(this.feed, this.filter).slice(this.feedRendered.length, this.feedRendered.length + this.size));
     if (ev) ev.target.complete();
   }
 
@@ -73,7 +81,7 @@ export class SearchComponent  implements OnInit {
       return;
     }
     this.feedRendered = [];
-    this.feedRendered.push(...this.query.transform(this.feed, this.filter).slice(this.feedRendered.length, this.feedRendered.length + 10));
+    this.feedRendered.push(...this.query.transform(this.feed, this.filter).slice(this.feedRendered.length, this.feedRendered.length + this.size));
   }
 
 }

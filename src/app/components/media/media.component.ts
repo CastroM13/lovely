@@ -34,9 +34,9 @@ export class MediaComponent implements OnInit {
     private stateService: StateService,
     private alertController: AlertController
   ) {
-    this.id = this.route.snapshot.paramMap.get('id');
+    this.imdbID = this.route.snapshot.paramMap.get('id');
     this.type = (this.route.snapshot.queryParamMap.get('type') ?? "movie") as "movie" | "series";
-    this.media.imdbID = this.id;
+    this.media.imdbID = this.imdbID;
     const navigation = this.router.getCurrentNavigation();
     this.fallbackMedia = navigation?.extras.state?.['fallback'];
   }
@@ -53,7 +53,7 @@ export class MediaComponent implements OnInit {
   editable = true;
   dirty = false;
   loading = false;
-  id: string | null;
+  imdbID: string | null;
   type: "series" | "movie";
   token: string = '';
   fallbackMedia: QueryMedia;
@@ -65,6 +65,10 @@ export class MediaComponent implements OnInit {
   }
   get half() {
     return (((Number(this.newRemark) / 2) % 1) * 2);
+  }
+
+  deserialize(token: string) {
+    return (JSON.parse(atob(token.split('.')[1])) as {token: string}).token.toLocaleLowerCase();
   }
 
   flattenObject(obj: Record<string, any>, prefix = ''): any {
@@ -152,7 +156,7 @@ export class MediaComponent implements OnInit {
     this.segment = (this.segment === 'streams' ? 'about' : 'streams')
     if (this.segment === 'streams') {
       this.magnetLoading = true;
-      this.magnets = (await lastValueFrom(this.filminhoService.getTorrents(this.id!))).streams;
+      this.magnets = (await lastValueFrom(this.filminhoService.getTorrents(this.imdbID!))).streams;
       this.magnets.forEach(magnet => {
         const languages = magnet.title.split('\n')[2];
         if (languages) {
@@ -182,27 +186,35 @@ export class MediaComponent implements OnInit {
       }
       this.originalMedia = JSON.parse(JSON.stringify(this.media));
     }
-    this.stateService.state$.subscribe(x => {
-      const media = x.collections?.find(collection => collection.imdbID === this.id);
-      if (media) {
-        this.media = media;
+    this.filminhoService.getMedia(this.imdbID!).subscribe(x => {
+      if (x) {
+        this.media = x;
         if (this.media.Type === 'series' && !this.media.WatchedEpisodes) this.media.WatchedEpisodes = [];
-        this.originalMedia = JSON.parse(JSON.stringify(media));
+        this.originalMedia = JSON.parse(JSON.stringify(x));
       }
-    })
+    });
   }
 
-  publishReview() {
-    console.log(this.media)
+  publishReview(modal: IonModal) {
+    console.log(this.media.imdbID)
+    this.filminhoService.publishReview(this.media.imdbID!, this.newReview, this.newRemark / 2).subscribe(x => {
+      if (this.media.Remarks) this.media.Remarks[this.token] = this.newRemark / 2;
+      if (this.media.Reviews) this.media.Reviews[this.token] = this.newReview;
+    });
+    modal.dismiss();
+  }
+
+  saveReview(modal: IonModal) {
     if (this.media.Remarks) this.media.Remarks[this.token] = this.newRemark / 2;
     if (this.media.Reviews) this.media.Reviews[this.token] = this.newReview;
+    modal.dismiss();
   }
 
   async upsert() {
     const loading = await this.loadingController.create();
     loading.present()
-    if (this.media.id) {
-      await lastValueFrom(this.filminhoService.updateMedia(this.media.id, this.shallowDiff(this.originalMedia, this.media)));
+    if (this.media._id) {
+      await lastValueFrom(this.filminhoService.updateMedia(this.media._id, this.shallowDiff(this.originalMedia, this.media)));
       this.updateMediaCollection();
     } else {
       const newMedia = this.media;
@@ -260,8 +272,10 @@ export class MediaComponent implements OnInit {
 
   async ngOnInit() {
     this.fetchMedia();
-    this.storageService.get('token').then(token => this.token = token);
-    if (this.id) this.metadata = await lastValueFrom(this.filminhoService.getMediaMetadata(this.type, this.id))
+    this.storageService.getItem<string>('token').then(token => {
+      this.token = this.deserialize(token || '')
+    });
+    if (this.imdbID) this.metadata = await lastValueFrom(this.filminhoService.getMediaMetadata(this.type, this.imdbID))
   }
 
   routeTo(genre: string) {

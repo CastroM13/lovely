@@ -21,8 +21,8 @@ export class LoginPage implements OnInit {
 
   auth(event: Event) {
     this.filminhoService.auth((event.target as HTMLInputElement).value).subscribe({
-      next: (res) => {
-        this.storageService.set('token', res.token);
+      next: (token) => {
+        this.storageService.setItem('token', token);
         this.router.navigate(['/modules/filminho'])
       }
     })

@@ -6,7 +6,11 @@ export const tokenGuard: CanActivateFn = async (route, state) => {
   const storageService = inject(StorageService);
   const router = inject(Router);
   await storageService.init();
-  const token = await storageService.get('token');
+  const token = await storageService.getItem('token');
   
-  return (token) || router.parseUrl('/login');
+  if (token) {
+    return true;
+  } else {
+    return router.parseUrl('/login');
+  }
 };

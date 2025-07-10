@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
 import { Media, MediaStatus, MediaStatusType } from 'src/app/interfaces/media';
@@ -10,17 +10,13 @@ import { StateService } from 'src/app/services/state.service';
   templateUrl: './collection.component.html',
   styleUrls: ['./collection.component.scss'],
 })
-export class CollectionComponent {
+export class CollectionComponent implements OnInit {
 
   constructor(
     private filminhoService: FilminhoService,
-    private stateService: StateService,
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    stateService.state$.subscribe(x => {
-      this.mediaCollection = x.collections?.reverse() || [];
-    })
   }
 
   mediaCollection: Media[] = [];
@@ -34,12 +30,16 @@ export class CollectionComponent {
     Status: null
   }
 
+  ngOnInit(): void {
+    this.loadMediaCollection();
+  }
+
   openMedia(media: Media) {
     this.router.navigate([media.imdbID], { relativeTo: this.activatedRoute, queryParams: { type: media.Type} })
   }
 
   async loadMediaCollection(event?: { target: { complete: () => void } }) {
-    this.stateService.state = { collections: await lastValueFrom(this.filminhoService.getCollection()) };
+    this.mediaCollection = (await lastValueFrom(this.filminhoService.getCollection())).reverse();
     event?.target.complete();
   }
 }

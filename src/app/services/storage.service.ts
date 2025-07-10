@@ -1,56 +1,77 @@
 import { Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 import { Storage } from '@ionic/storage-angular';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StorageService {
+  private storage: Storage | null = null;
+  private readonly subjects = new Map<string, Subject<any>>();
 
-  private _storage: Storage | null = null;
-
-  constructor(private storage: Storage) {
+  constructor(private ionicStorage: Storage) {
     this.init();
   }
 
   async init() {
-    const storage = await this.storage.create();
-    this._storage = storage;
+    this.storage = await this.ionicStorage.create();
   }
 
-  public async set(key: string, value: any): Promise<void> {
-    await this._storage?.set(key, value);
+  async setItem<T>(key: string, value: T): Promise<void> {
+    if (this.storage) {
+      await this.storage.set(key, value);
+      this.getSubject(key).next(value);
+    }
   }
 
-  public async get(key: string): Promise<any> {
-    return this._storage?.get(key);
+  async getItem<T>(key: string): Promise<T | null> {
+    if (this.storage) {
+      return await this.storage.get(key);
+    }
+    return null;
   }
 
-  public async remove(key: string): Promise<void> {
-    await this._storage?.remove(key);
+  subscribe<T>(key: string): Observable<T | null> {
+    return new Observable<T | null>(observer => {
+      this.init().then(() => {
+        this.getItem<T>(key).then(value => {
+          observer.next(value);
+          
+          const subject = this.getSubject<T>(key);
+          const subscription = subject.subscribe(value => observer.next(value));
+          
+          return () => subscription.unsubscribe();
+        });
+      });
+    });
   }
 
-  public async clear(): Promise<void> {
-    await this._storage?.clear();
+  private getSubject<T>(key: string): Subject<T> {
+    if (!this.subjects.has(key)) {
+      this.subjects.set(key, new Subject<T>());
+    }
+    return this.subjects.get(key)!;
   }
 
-  public async keys(): Promise<string[] | undefined> {
-    return this._storage?.keys();
+  async removeItem(key: string): Promise<void> {
+    if (this.storage) {
+      await this.storage.remove(key);
+      this.getSubject(key).next(null);
+    }
   }
 
-  public async length(): Promise<number | undefined> {
-    return this._storage?.length();
+  async clear(): Promise<void> {
+    if (this.storage) {
+      await this.storage.clear();
+      this.subjects.forEach(subject => subject.next(null));
+    }
   }
 
-  public async setObject(key: string, object: any): Promise<void> {
-    await this._storage?.set(key, JSON.stringify(object));
+  async getObject<T>(key: string): Promise<T | null> {
+    return this.getItem<T>(key);
   }
 
-  public async getObject<T>(key: string): Promise<T | null> {
-    const data = await this._storage?.get(key);
-    return data ? JSON.parse(data) : null;
-  }
-
-  public async key(index: number): Promise<string | undefined> {
-    return (await this._storage?.keys())!.find((_, i) => i === index);
+  async setObject<T>(key: string, value: T): Promise<void> {
+    return this.setItem<T>(key, value);
   }
 }

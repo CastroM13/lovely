@@ -41,7 +41,7 @@ export class RecipesComponent implements OnInit {
   ]
 
   async ngOnInit() {
-    this.token = await this.storageService.get('token');
+    this.token = await this.storageService.getItem<string>('token') || '';
   }
 
   onFileSelected(event: Event): void {
@@ -56,7 +56,7 @@ export class RecipesComponent implements OnInit {
   }
 
   onSearchChange(text: Event) {
-    this.storageService.get('token').then(token => this.token = token);
+    this.storageService.getItem<string>('token').then(token => this.token = token || '');
     console.log(text)
   }
 }
