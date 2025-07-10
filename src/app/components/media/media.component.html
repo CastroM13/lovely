@@ -1,3 +1,4 @@
+@if (isMobile) {
 <ion-content *ngIf="metadata && metadata.meta">
   <ion-toolbar slot="start">
     <ion-buttons>
@@ -142,7 +143,7 @@
             </div>
           </ng-container>
           <div class="review"
-          *ngIf="(!media.Reviews || !media.Reviews[token]) && (!media.Remarks || !media.Remarks[token])">
+            *ngIf="(!media.Reviews || !media.Reviews[token]) && (!media.Remarks || !media.Remarks[token])">
             <ion-avatar>
               <img [src]="'assets/'+token+'.jpg'" />
             </ion-avatar>
@@ -156,10 +157,11 @@
   </div>
   <div class="p" [hidden]="segment !== 'streams'">
     <div class="px">
-      <ion-chip class="lang" [color]="selectedLanguages.includes(lang) ? '' : 'light'" (click)="toggleLanguage(lang)" *ngFor="let lang of languages">{{lang}}</ion-chip>
+      <ion-chip class="lang" [color]="selectedLanguages.includes(lang) ? '' : 'light'" (click)="toggleLanguage(lang)"
+        *ngFor="let lang of languages">{{lang}}</ion-chip>
     </div>
-    <ion-searchbar [value]="filter.title" placeholder="Buscar magnets" searchIcon="false" animated="true" (ionInput)="onSearchChange($event)" [debounce]="250"
-      showClearButton></ion-searchbar>
+    <ion-searchbar [value]="filter.title" placeholder="Buscar magnets" searchIcon="false" animated="true"
+      (ionInput)="onSearchChange($event)" [debounce]="250" showClearButton></ion-searchbar>
     @if (!magnetLoading) {
     @for (magnet of magnets | query:filter | query:{title: selectedLanguages.join(' / ')}; track $index) {
     <ion-card (click)="openMagnet(magnet.infoHash)">
@@ -179,17 +181,17 @@
     }
     }
     @else {
-      <ion-card  *ngFor="let i of [].constructor(5)">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-skeleton-text [animated]="true" style="width: 80%;"></ion-skeleton-text>
-            <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
-          </ion-card-title>
-          <ion-card-subtitle>
-            <span><ion-skeleton-text [animated]="true" style="width: 40%;"></ion-skeleton-text></span>
-          </ion-card-subtitle>
-        </ion-card-header>
-      </ion-card>
+    <ion-card *ngFor="let i of [].constructor(5)">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-skeleton-text [animated]="true" style="width: 80%;"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+        </ion-card-title>
+        <ion-card-subtitle>
+          <span><ion-skeleton-text [animated]="true" style="width: 40%;"></ion-skeleton-text></span>
+        </ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
     }
   </div>
   <ion-modal #modal draggable="false">
@@ -222,11 +224,13 @@
             placeholder="Digite o seu review!">
           </ion-textarea>
         </ion-card>
-        <ion-button [disabled]="newRemark === 0" class="ion-padding" expand="block" (click)="saveReview(modal)" *ngIf="!media._id">
+        <ion-button [disabled]="newRemark === 0" class="ion-padding" expand="block" (click)="saveReview(modal)"
+          *ngIf="!media._id">
           <ion-icon slot="start" name="send-sharp" aria-hidden="true"></ion-icon>
           Salvar review
         </ion-button>
-        <ion-button [disabled]="newRemark === 0" class="ion-padding" expand="block" (click)="publishReview(modal)" *ngIf="media._id">
+        <ion-button [disabled]="newRemark === 0" class="ion-padding" expand="block" (click)="publishReview(modal)"
+          *ngIf="media._id">
           <ion-icon slot="start" name="send-sharp" aria-hidden="true"></ion-icon>
           Publicar review
         </ion-button>
@@ -237,3 +241,117 @@
 <ion-footer *ngIf="dirty">
   <ion-button expand="full" (click)="upsert()">Salvar</ion-button>
 </ion-footer>
+} @else {
+<div *ngIf="metadata && metadata.meta">
+  <div class="banner" [style.--bg]="'url(' + (metadata.meta.background || media.Poster) + ')'">
+    <div class="gradient"></div>
+    <div class="info-wrapper">
+      <img class="logo" [src]="metadata.meta.logo" alt="">
+      <div class="info">
+        <time>{{metadata.meta.director || metadata.meta.country }}</time>
+        <h1>{{metadata.meta.name}}</h1>
+        <br>
+        <div class="genres">
+          <span class="label"><img height="18px" src="assets/IMDb_Logo_Alt_Rectangle_White.png" alt="">
+            {{metadata.meta.imdbRating}}</span>
+          <ng-container *ngIf="metadata.meta.runtime">
+            <hr v>
+            <span class="label">{{metadata.meta.runtime}}</span>
+          </ng-container>
+          <ng-container *ngIf="metadata.meta.year || metadata.meta.releaseInfo">
+            <hr v>
+            <span class="label">{{metadata.meta.year || metadata.meta.releaseInfo}}</span>
+          </ng-container>
+          <ng-container *ngIf="metadata.meta.genres && metadata.meta.genres.length > 0">
+            <hr v>
+            <span>
+              <div>
+                <a class="link" (click)="routeTo(genre)"
+                  *ngFor="let genre of metadata.meta.genres.slice(0,2); let i = index">
+                  {{genre}}{{i + 1 < metadata.meta.genres.slice(0, 2).length ? ',' : '' }} </a>
+              </div>
+            </span>
+          </ng-container>
+        </div>
+        <p>{{metadata.meta.description}}</p>
+      </div>
+    </div>
+    @if(metadata.meta.videos) {
+    <div class="magnet-wrapper seasons">
+      @if (activeEpisode) {
+      <div class="selected-episode-header">
+        <ion-icon (click)="activeEpisode = null" class="back-button" name="chevron-back-sharp"></ion-icon>
+        <span>Temporada {{activeEpisode.season}}, Episódio {{activeEpisode.number}} - {{activeEpisode.name}}</span>
+      </div>
+      <div class="magnet-header">
+        <ion-searchbar [value]="filter.title" placeholder="Buscar magnets" searchIcon="false" animated="true"
+          (ionInput)="onSearchChange($event)" [debounce]="250" showClearButton></ion-searchbar>
+        <ion-select placeholder="Selecionar idiomas" [value]="selectedLanguages" (ionChange)="onLanguageChange($event)"
+          interface="popover">
+          <ion-select-option value=""></ion-select-option>
+          <ion-select-option *ngFor="let lang of languages" [value]="lang">{{lang}}</ion-select-option>
+        </ion-select>
+      </div>
+      <ag-grid-angular style="height: calc(100% - 60px);" [autoSizeStrategy]="strategy"
+        [rowData]="magnets | query:filter | query:{title: selectedLanguages.join(' / ')}"
+        (rowClicked)="openMagnet($event.data.infoHash)" [columnDefs]="colDefs" [theme]="myTheme"></ag-grid-angular>
+      } @else {
+      @for (season of groupBy(metadata.meta.videos, 'season') | keyvalue; track season.key) {
+      @let episodes = $any(season.value);
+      @let seasonKey = $any(season.key);
+      @if (seasonKey > 0) {
+      <div class="season">
+        <div class="season-header" (click)="activeSeason = activeSeason === seasonKey ? null : seasonKey">
+          <span class="season-title">Temporada {{season.key}}</span>
+          <time>{{episodes.length}} episódios</time>
+        </div>
+        <div class="episodes" [class.active]="activeSeason === season.key">
+          @for (episode of episodes; track episode.number) {
+          <div class="episode" (click)="loadEpisodeMagnets(episode)">
+            <img [src]="episode.thumbnail" (error)="episode.thumbnail = 'assets/shapes.svg'" alt="">
+            <div class="episode-header">
+              <h3>{{episode.number}}. {{episode.name}}</h3>
+              <span class="description">{{episode.description}}</span>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+      }
+      }
+    </div>
+    } @else {
+    <div class="magnet-wrapper">
+      @if (!magnetLoading) {
+      <div class="magnet-header">
+        <ion-searchbar [value]="filter.title" placeholder="Buscar magnets" searchIcon="false" animated="true"
+          (ionInput)="onSearchChange($event)" [debounce]="250" showClearButton></ion-searchbar>
+        <ion-select placeholder="Selecionar idiomas" [value]="selectedLanguages" (ionChange)="onLanguageChange($event)"
+          interface="popover">
+          <ion-select-option value=""></ion-select-option>
+          <ion-select-option *ngFor="let lang of languages" [value]="lang">{{lang}}</ion-select-option>
+        </ion-select>
+      </div>
+      <ag-grid-angular style="height: calc(100% - 60px);" [autoSizeStrategy]="strategy"
+        [rowData]="magnets | query:filter | query:{title: selectedLanguages.join(' / ')}"
+        (rowClicked)="openMagnet($event.data.infoHash)" [columnDefs]="colDefs" [theme]="myTheme"></ag-grid-angular>
+      }
+      @else {
+      <ion-card *ngFor="let i of [].constructor(5)">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-skeleton-text [animated]="true" style="width: 80%;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+          </ion-card-title>
+          <ion-card-subtitle>
+            <span><ion-skeleton-text [animated]="true" style="width: 40%;"></ion-skeleton-text></span>
+          </ion-card-subtitle>
+        </ion-card-header>
+      </ion-card>
+      }
+    </div>
+    }
+  </div>
+</div>
+}

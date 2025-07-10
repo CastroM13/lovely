@@ -122,3 +122,9 @@ hr[v] {
     --background: rgb(14 116 144);
     --color: white;
 }
+
+@media (min-width: 768px) {
+    .media-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}

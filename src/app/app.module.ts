@@ -24,6 +24,10 @@ import { SettingsComponent } from './modules/settings/settings.component';
 import { AppSettingsComponent } from './components/app-settings/app-settings.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { StorageService } from './services/storage.service';
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'; 
+import { AgGridModule } from 'ag-grid-angular';
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 export function initStorage(storageService: StorageService) {
   return () => storageService.init();
@@ -35,6 +39,7 @@ export function initStorage(storageService: StorageService) {
     BrowserModule,
     CommonModule,
     SharedModule,
+    AgGridModule,
     FormsModule,
     IonicModule.forRoot(
       {

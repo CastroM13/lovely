@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController, IonModal, LoadingController } from '@ionic/angular';
+import { AlertController, IonModal, LoadingController, Platform } from '@ionic/angular';
 import { lastValueFrom } from 'rxjs';
 import { Media } from 'src/app/interfaces/media';
 import { Magnet, MovieMetaData, QueryMedia, Video } from 'src/app/interfaces/metadata';
@@ -8,6 +8,8 @@ import { FilminhoService } from 'src/app/services/filminho.service';
 import { StateService } from 'src/app/services/state.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { stringToHexColor } from 'src/app/utils';
+import type { ColDef } from 'ag-grid-community';
+import { themeQuartz, iconSetQuartzLight, SizeColumnsToFitGridStrategy } from 'ag-grid-community';
 
 function* infiniteCycle() {
   const values = ["tito", "jujuba", null];
@@ -32,7 +34,8 @@ export class MediaComponent implements OnInit {
     private storageService: StorageService,
     private loadingController: LoadingController,
     private stateService: StateService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private platform: Platform
   ) {
     this.imdbID = this.route.snapshot.paramMap.get('id');
     this.type = (this.route.snapshot.queryParamMap.get('type') ?? "movie") as "movie" | "series";
@@ -40,6 +43,140 @@ export class MediaComponent implements OnInit {
     const navigation = this.router.getCurrentNavigation();
     this.fallbackMedia = navigation?.extras.state?.['fallback'];
   }
+  strategy: SizeColumnsToFitGridStrategy = {
+    type: 'fitGridWidth'
+  };
+  colDefs: ColDef[] = [
+    {
+      field: "Título",
+      valueGetter: (params) => {
+        const magnet = params.data;
+        const titleMatch = magnet.title?.match(/^([^\n]+)/);
+        return titleMatch ? titleMatch[1] : magnet.title || 'N/A';
+      },
+    },
+    {
+      field: "Qualidade",
+      width: 120,
+      valueGetter: (params) => {
+        const magnet = params.data;
+        const searchText = `${magnet.name || ''} ${magnet.title || ''}`;
+        
+        const patterns = [
+          /(\d{3,4}p)/i,
+          /(IMAX|UHD|HDR)/i,            
+          /(HDTV|WEB-DL|BluRay|BRRip|HDRip)/i
+        ];
+        
+        for (const pattern of patterns) {
+          const match = searchText.match(pattern);
+          if (match) {
+            const quality = match[1].toUpperCase();
+            if (quality === '4K' || quality === '4k') return '4K';
+            return quality;
+          }
+        }
+        return 'N/A';
+      },
+    },
+    {
+      field: "Tamanho",
+      width: 110,
+      valueGetter: (params) => {
+        const magnet = params.data;
+        const sizeMatch = magnet.title?.match(/(\d+(?:\.\d+)?)\s*(GB|MB|KB)/i);
+        if (sizeMatch) {
+          return `${sizeMatch[1]} ${sizeMatch[2].toUpperCase()}`;
+        }
+        return 'N/A';
+      },
+      comparator: (valueA, valueB) => {
+        if (valueA === 'N/A' && valueB === 'N/A') return 0;
+        if (valueA === 'N/A') return 1;
+        if (valueB === 'N/A') return -1;
+        
+        const parseSize = (value: string) => {
+          const match = value.match(/(\d+(?:\.\d+)?)\s*(GB|MB|KB)/i);
+          if (!match) return 0;
+          
+          const size = parseFloat(match[1]);
+          const unit = match[2].toUpperCase();
+          
+          switch (unit) {
+            case 'GB': return size * 1024 * 1024 * 1024;
+            case 'MB': return size * 1024 * 1024;
+            case 'KB': return size * 1024;
+            default: return size;
+          }
+        };
+        
+        const sizeA = parseSize(valueA);
+        const sizeB = parseSize(valueB);
+        
+        return sizeB - sizeA;
+      }
+    },
+    {
+      field: "Seeders",
+      width: 110,
+      valueGetter: (params) => {
+        const magnet = params.data;
+        const seederMatch = magnet.title?.match(/👤\s*(\d+)/);
+        if (seederMatch) {
+          return seederMatch[1];
+        }
+        const numberMatch = magnet.title?.match(/(\d+)\s*💾/);
+        if (numberMatch) {
+          return numberMatch[1];
+        }
+        return 'N/A';
+      },
+      comparator: (valueA, valueB) => {
+        if (valueA === 'N/A' && valueB === 'N/A') return 0;
+        if (valueA === 'N/A') return 1;
+        if (valueB === 'N/A') return -1;
+        
+        const numA = parseInt(valueA, 10);
+        const numB = parseInt(valueB, 10);
+        
+        return numB - numA; // More seeders first
+      }
+    },
+    {
+      field: "Origem",
+      width: 120,
+      valueGetter: (params) => {
+        const magnet = params.data;
+        const sourcePatterns = [
+          /⚙️\s*([^\n]+)/,
+          /-([A-Za-z0-9]+)$/,
+          /([A-Za-z0-9]+)-[A-Za-z0-9]+$/
+        ];
+        
+        for (const pattern of sourcePatterns) {
+          const match = magnet.title?.match(pattern);
+          if (match) return match[1];
+        }
+        return 'N/A';
+      },
+    },
+    {
+      field: "Linguagem",
+      valueGetter: (params) => {
+        const magnet = params.data;
+        const languageMatch = magnet.title?.match(/[\u{1F1E6}-\u{1F1FF}]{2}(?:\s*\/\s*[\u{1F1E6}-\u{1F1FF}]{2})*/gu);
+        if (languageMatch) {
+          return languageMatch.join(' ');
+        }
+        const langCodeMatch = magnet.title?.match(/(?:🇬🇧|🇵🇱|🇺🇸|🇪🇸|🇫🇷|🇩🇪|🇮🇹|🇯🇵|🇰🇷|🇨🇳|🇧🇷|🇵🇹|🇷🇺)/gu);
+        if (langCodeMatch) {
+          return langCodeMatch.join(' ');
+        }
+        return 'N/A';
+      },
+    },
+  ];
+  activeEpisode: Video | null = null;
   magnetLoading = false;
   languages: string[] = [];
   selectedLanguages: string[] = [];
@@ -60,6 +197,29 @@ export class MediaComponent implements OnInit {
   media: Partial<Media> = { Status: null, Remarks: {}, Reviews: {} };
   originalMedia: Partial<Media> = { Status: null, Remarks: {}, Reviews: {} };
   metadata?: MovieMetaData;
+  isMobile = false;
+  activeSeason: unknown | null = null;
+  myTheme = themeQuartz
+    .withPart(iconSetQuartzLight)
+    .withParams({
+      backgroundColor: "rgba(0, 0, 0, 0.1)",
+      browserColorScheme: "dark",
+      columnBorder: false,
+      borderRadius: 0,
+      fontFamily: "Arial",
+      foregroundColor: "rgba(255, 255, 255, 0.9)",
+      headerBackgroundColor: "rgba(0, 0, 0, 0.15)",
+      headerFontSize: 14,
+      headerFontWeight: 600,
+      headerTextColor: "rgba(255, 255, 255, 0.8)",
+      oddRowBackgroundColor: "rgba(0, 0, 0, 0.05)",
+      rowBorder: false,
+      sidePanelBorder: false,
+      spacing: 8,
+      wrapperBorder: false,
+      wrapperBorderRadius: 8
+    });
+  
   get star() {
     return Math.floor(Number(this.newRemark) / 2);
   }
@@ -68,7 +228,7 @@ export class MediaComponent implements OnInit {
   }
 
   deserialize(token: string) {
-    return (JSON.parse(atob(token.split('.')[1])) as {token: string}).token.toLocaleLowerCase();
+    return (JSON.parse(atob(token.split('.')[1])) as { token: string }).token.toLocaleLowerCase();
   }
 
   flattenObject(obj: Record<string, any>, prefix = ''): any {
@@ -87,10 +247,10 @@ export class MediaComponent implements OnInit {
     if (!this.media.Remarks) this.media.Remarks = {};
     if (!this.media.Reviews) this.media.Reviews = {};
     if (!this.media.Remarks[this.token]) {
-      this.media.Remarks = {[this.token]: 0};
+      this.media.Remarks = { [this.token]: 0 };
     }
     if (!this.media.Reviews[this.token]) {
-      this.media.Reviews = {[this.token]: ""};
+      this.media.Reviews = { [this.token]: "" };
     }
     if (this.media.Remarks && this.media.Remarks[this.token]) {
       this.newRemark = this.media.Remarks[this.token] * 2;
@@ -101,13 +261,25 @@ export class MediaComponent implements OnInit {
     modal.present();
   }
 
+  groupBy(array: any[], key: string) {
+    return array.reduce((acc, item) => {
+      acc[item[key]] = acc[item[key]] || [];
+      acc[item[key]].push(item);
+      return acc;
+    }, {});
+  }
+
   openMagnet(hash: string) {
-    window.open('magnet:?xt=urn:btih:'+hash)
+    window.open('magnet:?xt=urn:btih:' + hash)
   }
 
   toggleLanguage(lang: string) {
     if (this.selectedLanguages.includes(lang)) return this.selectedLanguages = this.selectedLanguages.filter(sl => sl !== lang);
     return this.selectedLanguages.push(lang);
+  }
+
+  onLanguageChange(event: CustomEvent) {
+    this.selectedLanguages = [event.detail.value];
   }
 
   shallowDiff(obj1: Record<string, any>, obj2: Record<string, any>): any {
@@ -139,7 +311,7 @@ export class MediaComponent implements OnInit {
         text: "Buscar magnet",
         handler: () => {
           this.filter.title = this.seCode(episode),
-          this.toggleSegment();
+            this.toggleSegment();
         }
       }]
     });
@@ -152,19 +324,36 @@ export class MediaComponent implements OnInit {
     this.languages.push(lang);
   }
 
-  async toggleSegment() {
+  toggleSegment() {
     this.segment = (this.segment === 'streams' ? 'about' : 'streams')
     if (this.segment === 'streams') {
-      this.magnetLoading = true;
-      this.magnets = (await lastValueFrom(this.filminhoService.getTorrents(this.imdbID!))).streams;
-      this.magnets.forEach(magnet => {
-        const languages = magnet.title.split('\n')[2];
-        if (languages) {
-          magnet.title.split('\n')[2].match(/[\u{1F1E6}-\u{1F1FF}]{2}/gu)?.forEach(e => this.addToLanguages(e))
-        }
-      })
-      this.magnetLoading = false;
+      this.loadMagnets();
     }
+  }
+
+  async loadMagnets() {
+    this.magnetLoading = true;
+    this.magnets = (await lastValueFrom(this.filminhoService.getTorrents(this.imdbID!))).streams;
+    this.magnets.forEach(magnet => {
+      const languages = magnet.title.split('\n')[2];
+      if (languages) {
+        magnet.title.split('\n')[2].match(/[\u{1F1E6}-\u{1F1FF}]{2}/gu)?.forEach(e => this.addToLanguages(e))
+      }
+    })
+    this.magnetLoading = false;
+  }
+
+  async loadEpisodeMagnets(episode: Video) {
+    this.activeEpisode = episode;
+    this.magnetLoading = true;
+    this.magnets = (await lastValueFrom(this.filminhoService.getTorrents(episode.id))).streams;
+    this.magnets.forEach(magnet => {
+      const languages = magnet.title.split('\n')[2];
+      if (languages) {
+        magnet.title.split('\n')[2].match(/[\u{1F1E6}-\u{1F1FF}]{2}/gu)?.forEach(e => this.addToLanguages(e))
+      }
+    })
+    this.magnetLoading = false;
   }
 
   async updateMediaCollection() {
@@ -196,7 +385,6 @@ export class MediaComponent implements OnInit {
   }
 
   publishReview(modal: IonModal) {
-    console.log(this.media.imdbID)
     this.filminhoService.publishReview(this.media.imdbID!, this.newReview, this.newRemark / 2).subscribe(x => {
       if (this.media.Remarks) this.media.Remarks[this.token] = this.newRemark / 2;
       if (this.media.Reviews) this.media.Reviews[this.token] = this.newReview;
@@ -260,7 +448,7 @@ export class MediaComponent implements OnInit {
   public seCode = (episode: Video) => `S${String(episode.season).padStart(2, '0')}E${String(episode.number).padStart(2, '0')}`;
 
   generateSeasons(videos: Video[]) {
-    const seasons: {[key: number]: Video[]} = {};
+    const seasons: { [key: number]: Video[] } = {};
     videos.forEach(x => {
       if (seasons[x.season]) {
         return seasons[x.season].push(x)
@@ -271,6 +459,8 @@ export class MediaComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.isMobile = await this.platform.is('mobile');
+    if (!this.isMobile) this.loadMagnets();
     this.fetchMedia();
     this.storageService.getItem<string>('token').then(token => {
       this.token = this.deserialize(token || '')

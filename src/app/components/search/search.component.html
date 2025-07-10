@@ -1,3 +1,4 @@
+@if (isMobile) {
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-segment [(ngModel)]="filter.type" (ngModelChange)="content.scrollToTop();updateFeedType();">
@@ -14,12 +15,31 @@
   </ion-toolbar>
   <ion-searchbar [(ngModel)]="searchValue" (ionInput)="search()" animated [debounce]="300"></ion-searchbar>
 </ion-header>
+} @else {
+<ion-header>
+  <div class="search-header">
+    <ion-segment [(ngModel)]="filter.type" (ngModelChange)="content.scrollToTop();updateFeedType();">
+      <ion-segment-button value="movie">
+        Filmes
+      </ion-segment-button>
+      <ion-segment-button [value]="null">
+        Todos
+      </ion-segment-button>
+      <ion-segment-button value="series">
+        Series
+      </ion-segment-button>
+    </ion-segment>
+    <ion-searchbar [(ngModel)]="searchValue" (ionInput)="search()" [debounce]="300"></ion-searchbar>
+  </div>
+</ion-header>
+}
 <ion-content #content>
   <ion-refresher slot="fixed" (ionRefresh)="loadFeed($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <div class="media-grid">
-    <div class="media" *ngFor="let item of (searchData || feedRendered) | query:filter" (click)="openFeedItem(item)" [style.background]="item.poster ? 'url(' + item.poster + ')' : 'linear-gradient(45deg, '+randomHexColor()+', '+randomHexColor()+')'">
+    <div class="media" *ngFor="let item of (searchData || feedRendered) | query:filter" (click)="openFeedItem(item)"
+      [style.background]="item.poster ? 'url(' + item.poster + ')' : 'linear-gradient(45deg, '+randomHexColor()+', '+randomHexColor()+')'">
       <span *ngIf="!item.poster">{{item.name}}</span>
       <time *ngIf="!item.poster">{{item.releaseInfo}}</time>
     </div>
