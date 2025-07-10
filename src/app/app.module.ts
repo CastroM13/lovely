@@ -1,6 +1,6 @@
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { RouteReuseStrategy, RouterModule } from '@angular/router';
+import { RouteReuseStrategy } from '@angular/router';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
@@ -39,15 +39,13 @@ export function initStorage(storageService: StorageService) {
     BrowserModule,
     CommonModule,
     SharedModule,
-    AgGridModule,
     FormsModule,
-    IonicModule.forRoot(
-      {
-        mode: 'ios'
-      }
-    ),
+    IonicModule.forRoot({
+      mode: 'ios'
+    }),
     AppRoutingModule,
-    IonicStorageModule.forRoot()
+    IonicStorageModule.forRoot(),
+    AgGridModule
   ],
   providers: [
     StateService,

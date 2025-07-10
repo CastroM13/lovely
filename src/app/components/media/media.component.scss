@@ -1,4 +1,215 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+}
+
+time {
+    color: gray;
+}
+
+.genres {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    a {
+        font-weight: 300;
+        color: #8e8e8e;
+    }
+}
+
+ion-item {
+    --background: transparent;
+}
+
+.rating {
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    --size: 2rem;
+    height: var(--size);
+
+    ion-range {
+        position: absolute;
+        height: var(--size);
+        width: calc(var(--size) * 5);
+        margin: 0 1rem;
+        transform: translateX(-8px);
+        opacity: 0;
+    }
+
+    .inner-rating {
+        display: flex;
+        font-size: var(--size);
+        gap: 6px;
+        justify-content: center;
+        position: relative;
+
+        .fg-rating,
+        .bg-rating {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .bg-rating {
+            position: absolute;
+        }
+    }
+}
+
+.label {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-weight: 300;
+    color: #8e8e8e;
+}
+
+ion-toolbar {
+    position: absolute;
+    --background: transparent;
+
+    ion-button {
+        --color: white;
+    }
+}
+
+.review-chat {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .review {
+        ion-avatar {
+            min-width: 48px;
+        }
+
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-direction: row;
+
+        &:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+    }
+
+    .comment {
+        gap: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        .stars {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+    }
+}
+
+ion-accordion-group {
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+
+    ion-accordion {
+        border-radius: 7px;
+        background: #222428b8;
+
+        ion-item[slot=header] {
+            border-radius: 7px;
+        }
+    }
+}
+
+.details-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .details {
+        position: relative;
+
+        &.open {
+            .content {
+                max-height: fit-content;
+            }
+
+            .header:after {
+                transform: rotate(90deg);
+            }
+        }
+
+        .header {
+            display: flex;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.039);
+            border-radius: 10px;
+            padding: 12px 8px;
+
+            &:after {
+                content: '›';
+                transform: rotate(0deg);
+                transition: transform .25s;
+                position: absolute;
+                right: 1rem;
+            }
+        }
+
+        .content {
+            max-height: 0px;
+            overflow: hidden;
+        }
+    }
+}
+
+.collection,
+.ownership {
+    position: absolute;
+    top: 8px;
+    z-index: 999;
+    backdrop-filter: blur(12px);
+    --background: rgba(0, 0, 0, 0.483);
+}
+
+.collection {
+    left: 8px;
+}
+
+.ownership {
+    right: 8px;
+}
+
+ion-chip:has(.we-wrapper) {
+    padding: 4px;
+}
+
+.we-wrapper {
+    display: flex;
+
+    ion-avatar {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+ion-card-title {
+    font-size: 1.25rem;
+}
+
+.lang {
+    padding: 4px 8px;
+    font-size: 1.5rem;
+}
+
 @media (max-width: 767.98px) {
+
     .banner {
         width: 100vw;
         aspect-ratio: 16 / 9;
@@ -32,178 +243,6 @@
         }
     }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        margin: 0;
-    }
-
-    time {
-        color: gray;
-    }
-
-    .genres {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        a {
-            font-weight: 300;
-            color: #8e8e8e;
-        }
-    }
-
-    ion-item {
-        --background: transparent;
-    }
-
-    .rating {
-        margin-top: 4rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        --size: 2rem;
-        height: var(--size);
-
-        ion-range {
-            position: absolute;
-            height: var(--size);
-            width: calc(var(--size) * 5);
-            margin: 0 1rem;
-            transform: translateX(-8px);
-            opacity: 0;
-        }
-
-        .inner-rating {
-            display: flex;
-            font-size: var(--size);
-            gap: 6px;
-            justify-content: center;
-            position: relative;
-
-            .fg-rating {
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-            }
-
-            .bg-rating {
-                position: absolute;
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-            }
-        }
-    }
-
-    .label {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        font-weight: 300;
-        color: #8e8e8e;
-    }
-
-    ion-toolbar {
-        position: absolute;
-        --background: transparent;
-
-        ion-button {
-            --color: white;
-        }
-    }
-
-    .review-chat {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        .review {
-            ion-avatar {
-                min-width: 48px;
-            }
-
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-direction: row;
-
-            &:nth-child(even) {
-                flex-direction: row-reverse;
-            }
-        }
-
-        .comment {
-            gap: 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-
-            .stars {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-        }
-    }
-
-    ion-accordion-group {
-        gap: 8px;
-        display: flex;
-        flex-direction: column;
-
-        ion-accordion {
-            border-radius: 7px;
-            background: #222428b8;
-
-            ion-item[slot=header] {
-                border-radius: 7px;
-            }
-        }
-    }
-
-    .details-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        .details {
-            position: relative;
-
-            &.open {
-                .content {
-                    max-height: fit-content;
-                }
-
-                .header:after {
-                    transform: rotate(90deg);
-                }
-            }
-
-            .header {
-                display: flex;
-                gap: 1rem;
-                background: rgba(255, 255, 255, 0.039);
-                border-radius: 10px;
-                padding: 12px 8px;
-
-                &:after {
-                    content: '›';
-                    transform: rotate(0deg);
-                    transition: transform .25s;
-                    position: absolute;
-                    right: 1rem;
-                }
-            }
-
-            .content {
-                max-height: 0px;
-                overflow: hidden;
-            }
-        }
-    }
-
     .episode {
         padding: 12px;
         display: grid;
@@ -215,47 +254,6 @@
             text-align: right;
         }
     }
-
-    .collection {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        z-index: 999;
-        backdrop-filter: blur(12px);
-        --background: rgba(0, 0, 0, 0.483);
-    }
-
-    .ownership {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        z-index: 999;
-        backdrop-filter: blur(12px);
-        --background: rgba(0, 0, 0, 0.483);
-    }
-
-    ion-chip:has(.we-wrapper) {
-        padding: 4px;
-    }
-
-    .we-wrapper {
-        display: flex;
-
-        ion-avatar {
-            width: 24px;
-            height: 24px;
-        }
-    }
-
-    ion-card-title {
-        font-size: 1.25rem;
-    }
-
-    .lang {
-        padding: 4px 8px;
-        font-size: 1.5rem;
-    }
-
 }
 
 @media (min-width: 768px) {
@@ -289,7 +287,6 @@
             background: rgba(0, 0, 0, 0.483);
             backdrop-filter: blur(12px);
             border-radius: 16px;
-            
 
             .magnet-header {
                 display: grid;
@@ -306,9 +303,11 @@
                 display: flex;
                 align-items: center;
                 gap: 1rem;
+
                 .back-button {
                     font-size: 1.5rem;
                     cursor: pointer;
+
                     &:hover {
                         color: rgba(255, 255, 255, 0.5);
                     }
@@ -338,178 +337,6 @@
         }
     }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        margin: 0;
-    }
-
-    time {
-        color: gray;
-    }
-
-    .genres {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        a {
-            font-weight: 300;
-            color: #8e8e8e;
-        }
-    }
-
-    ion-item {
-        --background: transparent;
-    }
-
-    .rating {
-        margin-top: 4rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        --size: 2rem;
-        height: var(--size);
-
-        ion-range {
-            position: absolute;
-            height: var(--size);
-            width: calc(var(--size) * 5);
-            margin: 0 1rem;
-            transform: translateX(-8px);
-            opacity: 0;
-        }
-
-        .inner-rating {
-            display: flex;
-            font-size: var(--size);
-            gap: 6px;
-            justify-content: center;
-            position: relative;
-
-            .fg-rating {
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-            }
-
-            .bg-rating {
-                position: absolute;
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-            }
-        }
-    }
-
-    .label {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        font-weight: 300;
-        color: #8e8e8e;
-    }
-
-    ion-toolbar {
-        position: absolute;
-        --background: transparent;
-
-        ion-button {
-            --color: white;
-        }
-    }
-
-    .review-chat {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        .review {
-            ion-avatar {
-                min-width: 48px;
-            }
-
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-direction: row;
-
-            &:nth-child(even) {
-                flex-direction: row-reverse;
-            }
-        }
-
-        .comment {
-            gap: 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-
-            .stars {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-        }
-    }
-
-    ion-accordion-group {
-        gap: 8px;
-        display: flex;
-        flex-direction: column;
-
-        ion-accordion {
-            border-radius: 7px;
-            background: #222428b8;
-
-            ion-item[slot=header] {
-                border-radius: 7px;
-            }
-        }
-    }
-
-    .details-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        .details {
-            position: relative;
-
-            &.open {
-                .content {
-                    max-height: fit-content;
-                }
-
-                .header:after {
-                    transform: rotate(90deg);
-                }
-            }
-
-            .header {
-                display: flex;
-                gap: 1rem;
-                background: rgba(255, 255, 255, 0.039);
-                border-radius: 10px;
-                padding: 12px 8px;
-
-                &:after {
-                    content: '›';
-                    transform: rotate(0deg);
-                    transition: transform .25s;
-                    position: absolute;
-                    right: 1rem;
-                }
-            }
-
-            .content {
-                max-height: 0px;
-                overflow: hidden;
-            }
-        }
-    }
-
     .seasons {
         height: 100%;
         padding: 16px;
@@ -519,6 +346,7 @@
         .season {
             display: flex;
             flex-direction: column;
+
             .season-header {
                 display: flex;
                 gap: 12px;
@@ -529,12 +357,15 @@
                 border-radius: 8px;
                 cursor: pointer;
                 transition: background 1s, color 1s;
+
                 &:hover {
                     background: rgba(0, 0, 0, 0.478);
                 }
+
                 .season-title {
                     font-size: 1.25rem;
                 }
+
                 time {
                     font-size: 1rem;
                     color: rgba(255, 255, 255, 0.5);
@@ -545,6 +376,7 @@
                 display: none;
                 flex-direction: column;
                 gap: 4px;
+
                 &.active {
                     display: flex;
                 }
@@ -553,78 +385,32 @@
                     padding: 12px;
                     display: grid;
                     grid-template-columns: 200px 1fr auto;
-                    gap: 16px;                    background: transparent;
+                    gap: 16px;
+                    background: transparent;
                     transition: background 1s, color 1s;
                     cursor: pointer;
                     color: rgba(255, 255, 255, 0.724);
+
                     .description {
                         font-size: 14px;
                         color: rgba(255, 255, 255, 0.5);
                     }
-    
+
                     &:hover {
                         color: rgba(255, 255, 255, 1);
                         background: rgba(0, 0, 0, 0.278);
                         border-radius: 8px;
                     }
-    
+
                     img {
                         width: 100%;
                         aspect-ratio: 16 / 9;
                         object-fit: cover;
                         border-radius: 8px;
                         background: #222428b8;
-    
-                        .episode {
-                            padding: 12px;
-                            display: grid;
-                            grid-template-columns: 200px 1fr auto;
-                            gap: 12px;
-                        }
                     }
                 }
             }
         }
     }
-
-    .collection {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        z-index: 999;
-        backdrop-filter: blur(12px);
-        --background: rgba(0, 0, 0, 0.483);
-    }
-
-    .ownership {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        z-index: 999;
-        backdrop-filter: blur(12px);
-        --background: rgba(0, 0, 0, 0.483);
-    }
-
-    ion-chip:has(.we-wrapper) {
-        padding: 4px;
-    }
-
-    .we-wrapper {
-        display: flex;
-
-        ion-avatar {
-            width: 24px;
-            height: 24px;
-        }
-    }
-
-    ion-card-title {
-        font-size: 1.25rem;
-    }
-
-    .lang {
-        padding: 4px 8px;
-        font-size: 1.5rem;
-    }
-
 }
